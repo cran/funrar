@@ -2,6 +2,7 @@
 % Please edit documentation in R/stack_matrix.R
 \name{matrix_to_stack}
 \alias{matrix_to_stack}
+\alias{matrix_to_tidy}
 \title{Matrix to stacked (= tidy) data.frame}
 \usage{
 matrix_to_stack(my_mat, value_col = "value",
@@ -27,7 +28,8 @@ a stacked (= tidy) data.frame with, a column for row names, one for
 column names and a third one for the values.
 }
 \description{
-From a matrix with values to a stacked (= tidy) data.frame
+From a matrix with values to a stacked (= tidy) data.frame, exclude NA from
+given data.frame.
 }
 \examples{
 data("aravo", package = "ade4")

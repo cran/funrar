@@ -12,7 +12,7 @@
 
 <meta name="author" content="Denelle Pierre &amp; Grenié Matthias" />
 
-<meta name="date" content="2016-07-15" />
+<meta name="date" content="2016-09-23" />
 
 <title>How to use funrar, an example with plant communities dataset.</title>
 
@@ -70,14 +70,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">How to use funrar, an example with plant communities dataset.</h1>
 <h4 class="author"><em>Denelle Pierre &amp; Grenié Matthias</em></h4>
-<h4 class="date"><em>2016-07-15</em></h4>
+<h4 class="date"><em>2016-09-23</em></h4>
 
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>The idea of Functional Rarity is to measure two components of the rarity of a species (or an individual). In community ecology, researchers are generally interested in the rarity of a species as measured in terms of abundances. A species with a low abundance will be considered ‘rare’. From a functional ecology perspective, this omits important information about the “role” that a given species plays in the ecosystem, its particular niche. A framework is being developed of various indices to characterize how functioning can be rare locally or regionally</p>
-<p>In their article, Violle et al. (in revision) introduced 4 indices to compute functional rarity indices. <code>funrar</code> package enables ecologists to compute these on any dataset.</p>
+<p>In their article, Violle et al. (accepted) introduced 4 indices to compute functional rarity indices. <code>funrar</code> package enables ecologists to compute these on any dataset.</p>
 </div>
 <div id="framework" class="section level1">
 <h1>Framework</h1>
@@ -473,7 +473,6 @@ ri_df =<span class="st"> </span><span class="kw">restrictedness_stack</span>(dat
 <p>In this section, some ideas to plot your results are presented. For example the density of the various indices or a matrix visualization of the values of distinctiveness per species.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
 <span class="kw">library</span>(dplyr)</code></pre></div>
-<pre><code>## Warning: package 'dplyr' was built under R version 3.3.1</code></pre>
 <pre><code>## 
 ## Attaching package: 'dplyr'</code></pre>
 <pre><code>## The following objects are masked from 'package:stats':
@@ -545,7 +544,7 @@ ri_ui &lt;-<span class="st"> </span><span class="kw">inner_join</span>(ri_df, ui
 <div id="references" class="section level1">
 <h1>References</h1>
 <p>Choler, P. (2005) Consistent shifts in Alpine plant traits along a mesotopographical gradient. Arctic, Antarctic, and Alpine Research, 37,444-453.</p>
-<p>Violle C., Thuiller W., Mouquet N., Munoz F., Kraft NJ., Cadotte MW., Livingstone SW., Mouillot D. Functional rarity: the ecology of outliers. <em>in revision</em></p>
+<p>Violle C., Thuiller W., Mouquet N., Munoz F., Kraft NJ., Cadotte MW., Livingstone SW., Mouillot D., Functional rarity: the ecology of outliers. <em>Trends in Ecology and Evolution</em> <strong>accepted</strong></p>
 </div>
 
 
