@@ -30,7 +30,6 @@ str(sparse_mat)
 print(object.size(sparse_mat), units = "Kb")
 
 ## ----microBenchDist------------------------------------------------------
-library(microbenchmark)
 library(funrar)
 
 # Get a table of traits
@@ -40,8 +39,11 @@ rownames(trait_df) = paste0("sp", 1:ncol(my_mat))
 # Compute distance matrix
 dist_mat = compute_dist_matrix(trait_df)
 
-microbenchmark(regular = distinctiveness(my_mat, dist_mat),
-               sparse = distinctiveness(sparse_mat, dist_mat))
+if (requireNamespace("microbenchmark", quietly = TRUE)) {
+  microbenchmark::microbenchmark(
+    regular = distinctiveness(my_mat, dist_mat),
+    sparse = distinctiveness(sparse_mat, dist_mat))
+}
 
 ## ----fillingInfluence----------------------------------------------------
 generate_matrix = function(n_zero = 5, nrow = 200, ncol = 1000) {
@@ -72,18 +74,20 @@ mat_filling(all_mats$`0`$mat)
 mat_filling(all_mats$`99`$mat)
 
 ## ---- eval=FALSE---------------------------------------------------------
-#  mat_bench = microbenchmark(
-#    mat_0 = distinctiveness(all_mats$`0`$mat, dist_mat),
-#    sparse_0 = distinctiveness(all_mats$`0`$sparse, dist_mat),
-#    mat_1 = distinctiveness(all_mats$`1`$mat, dist_mat),
-#    sparse_1 = distinctiveness(all_mats$`1`$sparse, dist_mat),
-#    mat_2 = distinctiveness(all_mats$`2`$mat, dist_mat),
-#    sparse_2 = distinctiveness(all_mats$`2`$sparse, dist_mat),
-#    mat_49 = distinctiveness(all_mats$`49`$mat, dist_mat),
-#    sparse_49 = distinctiveness(all_mats$`49`$sparse, dist_mat),
-#    mat_99 = distinctiveness(all_mats$`99`$mat, dist_mat),
-#    sparse_99 = distinctiveness(all_mats$`99`$sparse, dist_mat),
-#    times = 5)
+#  if (requireNamespace("microbenchmark", quietly = TRUE)) {
+#    mat_bench = microbenchmark::microbenchmark(
+#      mat_0 = distinctiveness(all_mats$`0`$mat, dist_mat),
+#      sparse_0 = distinctiveness(all_mats$`0`$sparse, dist_mat),
+#      mat_1 = distinctiveness(all_mats$`1`$mat, dist_mat),
+#      sparse_1 = distinctiveness(all_mats$`1`$sparse, dist_mat),
+#      mat_2 = distinctiveness(all_mats$`2`$mat, dist_mat),
+#      sparse_2 = distinctiveness(all_mats$`2`$sparse, dist_mat),
+#      mat_49 = distinctiveness(all_mats$`49`$mat, dist_mat),
+#      sparse_49 = distinctiveness(all_mats$`49`$sparse, dist_mat),
+#      mat_99 = distinctiveness(all_mats$`99`$mat, dist_mat),
+#      sparse_99 = distinctiveness(all_mats$`99`$sparse, dist_mat),
+#      times = 5)
 #  
-#  autoplot(mat_bench)
+#    autoplot(mat_bench)
+#  }
 

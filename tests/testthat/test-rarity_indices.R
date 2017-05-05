@@ -119,7 +119,6 @@ test_that("Invalid input types do not work", {
 
 test_that("Correct Di computation with different comm. without abundance",{
 
-
   # Good messages and warnings
   expect_message(distinctiveness_stack(com_df, "species", "site",
                                        abund = NULL, dist_mat))
@@ -150,7 +149,7 @@ test_that("Correct Di computation with different comm. without abundance",{
 })
 
 
-test_that("Distinctiveness is undefined for a community with a single species", {
+test_that("Di is undefined for a community with a single species", {
 
 
 
@@ -190,8 +189,7 @@ test_that("Correct Uniqueness computation", {
 
   expect_message(
     uniqueness_stack(com_df, "species", dist_mat[1:2,]),
-    regexp = paste("More species in community data.frame than in distance matrix\n",
-                   "Taking subset of community data.frame", sep = "")
+    regexp = "^More species in community data.frame than in distance matrix.*"
   )
 
   expect_equivalent(uniqueness_stack(com_df, "species", dist_mat), all_ui)
@@ -202,7 +200,6 @@ test_that("Correct Uniqueness computation", {
 
 
 # Test for Scarcity ------------------------------------------------------------
-
 
 test_that("Correct Scarcity computation", {
 
@@ -229,7 +226,8 @@ test_that("Scarcity errors with bad input", {
 
   expect_error(scarcity_stack(as.data.frame(com_df_ex),
                               "SPECIES_NOT_IN_TABLE", "site", "abund"),
-               regexp = "'SPECIES_NOT_IN_TABLE' column not in provided data.frame")
+               regexp = paste0("'SPECIES_NOT_IN_TABLE' column not in ",
+                               "provided data.frame"))
 
   expect_error(scarcity_stack(as.data.frame(com_df_ex), "species", "site",
                               NULL),
@@ -249,10 +247,12 @@ test_that("Scarcity errors with bad input", {
 
 test_that("Restrictedness computations work", {
   expect_equal(restrictedness_stack(com_df, "species", "site"),
-               data.frame("species" = letters[1:4], "Ri" = c(3/4, 1/4, 1/4, 1/2)))
+               data.frame("species" = letters[1:4],
+                          "Ri" = c(3/4, 1/4, 1/4, 1/2)))
 
   expect_equal(restrictedness(valid_mat),
-               data.frame("species" = letters[1:4], "Ri" = c(3/4, 1/4, 1/4, 1/2)))
+               data.frame("species" = letters[1:4],
+                          "Ri" = c(3/4, 1/4, 1/4, 1/2)))
 })
 
 test_that("Restrictedness works with sparse matrices", {
@@ -262,7 +262,8 @@ test_that("Restrictedness works with sparse matrices", {
   expect_silent(restrictedness(sparse_mat))
 
   expect_equivalent(restrictedness(sparse_mat),
-                    data.frame("species" = letters[1:4], "Ri" = c(3/4, 1/4, 1/4, 1/2)))
+                    data.frame("species" = letters[1:4],
+                               "Ri" = c(3/4, 1/4, 1/4, 1/2)))
 })
 
 # Tests for Combined function --------------------------------------------------
@@ -279,3 +280,21 @@ test_that("Funrar runs smoothly", {
   expect_equal(length(funrar_stack(com_df_ex, "species", "site", "abund",
                                    dist_mat)), 4)
 })
+
+test_that("funrar functions warns if object does not have relative abundances",
+          {
+            abs_mat = valid_mat
+            abs_mat[[1]] = 4
+
+            abs_df = matrix_to_stack(abs_mat)
+
+            expect_warning(distinctiveness(abs_mat, dist_mat),
+                           "^Provided object may not contain relative abund.*")
+
+            expect_warning(distinctiveness_stack(abs_df, "species", "site",
+                                                 "value", dist_mat),
+                           "^Provided object may not contain relative abund.*")
+
+            expect_warning(scarcity(abs_mat),
+                           "^Provided object may not contain relative abund.*")
+          })

@@ -122,8 +122,14 @@ distinctiveness_stack = function(com_df, sp_col, com, abund = NULL,
 
   # Test to be sure of inputs
   full_df_checks(com_df, sp_col, com, abund, dist_matrix)
+
   if (is.null(abund)) {
     message("No relative abundance provided, computing Di without it")
+  } else if (!is.null(abund) & !is_relative(com_df, abund)) {
+    # Test if provided data.frame contains absolute abundances
+    warning("Provided object may not contain relative abundances nor ",
+            "presence-absence\n",
+            "Have a look at the make_relative() function if it is the case")
   }
 
   # Take subsets of species if needed between distance matrix and community
@@ -214,6 +220,12 @@ distinctiveness = function(pres_matrix, dist_matrix) {
   pres_matrix = pres_matrix[, common, drop = FALSE]
   dist_matrix = dist_matrix[common, common]
 
+  if (!is_relative(pres_matrix)) {
+    warning("Provided object may not contain relative abundances nor ",
+            "presence-absence\n",
+            "Have a look at the make_relative() function if it is the case")
+  }
+
   # Matrix product of distance matrix and presence absence matrix
   index_matrix = pres_matrix %*% dist_matrix
 
@@ -239,8 +251,8 @@ distinctiveness = function(pres_matrix, dist_matrix) {
 
   index_matrix = index_matrix / denom_matrix
 
-  # Test if there is no NaN in the table for species alone in their community
-  if (!all(sapply(index_matrix, function(x) !is.nan(x)))) {
+  # Test if there is NaN in the table for species alone in their community
+  if (any(vapply(index_matrix, function(x) is.nan(x), logical(1)))) {
     warning(paste0("Some communities had a single species in them",
                    "Computed value assigned to 'NaN'", sep = "\n"))
   }

@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
@@ -12,7 +12,7 @@
 
 <meta name="author" content="Matthias Grenié" />
 
-<meta name="date" content="2016-11-22" />
+<meta name="date" content="2017-05-05" />
 
 <title>Sparse Marices with funrar</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Sparse Marices with funrar</h1>
 <h4 class="author"><em>Matthias Grenié</em></h4>
-<h4 class="date"><em>2016-11-22</em></h4>
+<h4 class="date"><em>2017-05-05</em></h4>
 
 
 
@@ -106,15 +106,15 @@ my_mat =<span class="st"> </span><span class="kw">matrix</span>(<span class="kw"
 my_mat[<span class="dv">1</span>:<span class="dv">5</span>, <span class="dv">1</span>:<span class="dv">5</span>]</code></pre></div>
 <pre><code>##       sp1 sp2 sp3 sp4 sp5
 ## site1   0   0   0   0   0
-## site2   0   0   0   0   0
-## site3   0   0   0   0   0
-## site4   0   0   0   0   0
+## site2   0   0   0   1   0
+## site3   0   0   0   0   1
+## site4   0   1   0   0   1
 ## site5   0   0   0   0   0</code></pre>
 <p><code>funrar</code> lets you use sparse matrices directly using a function implemented in the <code>Matrix</code> package. When your matrix is filled with 0s it can be quicker to use sparse matrices. To know if you should use sparse matrices you can compute the filling of your matrix, i.e. the percentage of non-zero cells in your matrix:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">filling =<span class="st"> </span><span class="dv">1</span> -<span class="st"> </span><span class="kw">sum</span>(my_mat ==<span class="st"> </span><span class="dv">0</span>)/(<span class="kw">ncol</span>(my_mat)*<span class="kw">nrow</span>(my_mat))
 
 filling</code></pre></div>
-<pre><code>## [1] 0.143695</code></pre>
+<pre><code>## [1] 0.142685</code></pre>
 <p>To convert from a normal matrix to a sparse matrix you can use <code>as(my_mat, &quot;sparseMatrix&quot;)</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(Matrix)
 
@@ -127,7 +127,7 @@ sparse_mat =<span class="st"> </span><span class="kw">as</span>(my_mat, <span cl
 <p>it completely changes the structure as well as the memory it takes in the RAM:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Regular Matrix</span>
 <span class="kw">str</span>(my_mat)</code></pre></div>
-<pre><code>##  num [1:200, 1:1000] 0 0 0 0 0 0 0 1 0 0 ...
+<pre><code>##  num [1:200, 1:1000] 0 0 0 0 0 1 1 1 0 0 ...
 ##  - attr(*, &quot;dimnames&quot;)=List of 2
 ##   ..$ : chr [1:200] &quot;site1&quot; &quot;site2&quot; &quot;site3&quot; &quot;site4&quot; ...
 ##   ..$ : chr [1:1000] &quot;sp1&quot; &quot;sp2&quot; &quot;sp3&quot; &quot;sp4&quot; ...</code></pre>
@@ -136,22 +136,21 @@ sparse_mat =<span class="st"> </span><span class="kw">as</span>(my_mat, <span cl
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Sparse Matrix from 'Matrix' package</span>
 <span class="kw">str</span>(sparse_mat)</code></pre></div>
 <pre><code>## Formal class 'dgCMatrix' [package &quot;Matrix&quot;] with 6 slots
-##   ..@ i       : int [1:28739] 7 12 21 28 31 55 58 59 62 67 ...
-##   ..@ p       : int [1:1001] 0 29 64 96 126 154 187 211 236 261 ...
+##   ..@ i       : int [1:28537] 5 6 7 15 18 20 22 25 28 33 ...
+##   ..@ p       : int [1:1001] 0 40 76 103 133 162 178 195 223 253 ...
 ##   ..@ Dim     : int [1:2] 200 1000
 ##   ..@ Dimnames:List of 2
 ##   .. ..$ : chr [1:200] &quot;site1&quot; &quot;site2&quot; &quot;site3&quot; &quot;site4&quot; ...
 ##   .. ..$ : chr [1:1000] &quot;sp1&quot; &quot;sp2&quot; &quot;sp3&quot; &quot;sp4&quot; ...
-##   ..@ x       : num [1:28739] 1 1 1 1 1 1 1 1 1 1 ...
+##   ..@ x       : num [1:28537] 1 1 1 1 1 1 1 1 1 1 ...
 ##   ..@ factors : list()</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="kw">object.size</span>(sparse_mat), <span class="dt">units =</span> <span class="st">&quot;Kb&quot;</span>)</code></pre></div>
-<pre><code>## 407.8 Kb</code></pre>
+<pre><code>## 405.4 Kb</code></pre>
 <p>sparse matrices reduce the amount of RAM necessary to store them. The more zeros there are in a given matrix the more RAM will be spared when turning it into a sparse matrix.</p>
 <div id="benchmark" class="section level2">
 <h2>Benchmark</h2>
-<p>We can now compare the performances of the algorithms in rarity indices computation between a sparse matrix and a regular one, using the popular <code>microbenchmark</code> R package:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(microbenchmark)
-<span class="kw">library</span>(funrar)
+<p>We can now compare the performances of the algorithms in rarity indices computation between a sparse matrix and a regular one, using the popular <a href="https://cran.r-project.org/package=microbenchmark"><code>microbenchmark</code></a> R package:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(funrar)
 
 <span class="co"># Get a table of traits</span>
 trait_df =<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">trait =</span> <span class="kw">runif</span>(<span class="kw">ncol</span>(my_mat), <span class="dv">0</span>, <span class="dv">1</span>))
@@ -160,12 +159,15 @@ trait_df =<span class="st"> </span><span class="kw">data.frame</span>(<span clas
 <span class="co"># Compute distance matrix</span>
 dist_mat =<span class="st"> </span><span class="kw">compute_dist_matrix</span>(trait_df)
 
-<span class="kw">microbenchmark</span>(<span class="dt">regular =</span> <span class="kw">distinctiveness</span>(my_mat, dist_mat),
-               <span class="dt">sparse =</span> <span class="kw">distinctiveness</span>(sparse_mat, dist_mat))</code></pre></div>
+if (<span class="kw">requireNamespace</span>(<span class="st">&quot;microbenchmark&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {
+  microbenchmark::<span class="kw">microbenchmark</span>(
+    <span class="dt">regular =</span> <span class="kw">distinctiveness</span>(my_mat, dist_mat),
+    <span class="dt">sparse =</span> <span class="kw">distinctiveness</span>(sparse_mat, dist_mat))
+}</code></pre></div>
 <pre><code>## Unit: milliseconds
 ##     expr      min       lq     mean   median       uq      max neval cld
-##  regular 323.5533 364.1125 479.2402 544.2697 554.6250 620.4377   100   b
-##   sparse 261.3286 308.1827 398.4806 401.0769 493.4916 544.8086   100  a</code></pre>
+##  regular 336.8899 354.6840 408.5958 437.9175 448.1385 537.1039   100   b
+##   sparse 247.3984 270.5092 313.0302 332.7930 353.4065 382.3080   100  a</code></pre>
 <div id="systematic-benchmark" class="section level3">
 <h3>Systematic benchmark</h3>
 <p>We generate matrices with different filling rate and compare the speed of regular matrix and sparse matrices computation.</p>
@@ -196,22 +198,24 @@ all_mats =<span class="st"> </span><span class="kw">lapply</span>(n_zero_vector,
 <span class="kw">mat_filling</span>(all_mats$<span class="st">`</span><span class="dt">0</span><span class="st">`</span>$mat)</code></pre></div>
 <pre><code>## [1] 1</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mat_filling</span>(all_mats$<span class="st">`</span><span class="dt">99</span><span class="st">`</span>$mat)</code></pre></div>
-<pre><code>## [1] 0.0101</code></pre>
+<pre><code>## [1] 0.00982</code></pre>
 <p>Now we can compare the speed of the algorithms:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mat_bench =<span class="st"> </span><span class="kw">microbenchmark</span>(
-  <span class="dt">mat_0 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">0</span><span class="st">`</span>$mat, dist_mat),
-  <span class="dt">sparse_0 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">0</span><span class="st">`</span>$sparse, dist_mat),
-  <span class="dt">mat_1 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">1</span><span class="st">`</span>$mat, dist_mat),
-  <span class="dt">sparse_1 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">1</span><span class="st">`</span>$sparse, dist_mat),
-  <span class="dt">mat_2 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">2</span><span class="st">`</span>$mat, dist_mat),
-  <span class="dt">sparse_2 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">2</span><span class="st">`</span>$sparse, dist_mat),
-  <span class="dt">mat_49 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">49</span><span class="st">`</span>$mat, dist_mat),
-  <span class="dt">sparse_49 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">49</span><span class="st">`</span>$sparse, dist_mat),
-  <span class="dt">mat_99 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">99</span><span class="st">`</span>$mat, dist_mat),
-  <span class="dt">sparse_99 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">99</span><span class="st">`</span>$sparse, dist_mat),
-  <span class="dt">times =</span> <span class="dv">5</span>)
-
-<span class="kw">autoplot</span>(mat_bench)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw">requireNamespace</span>(<span class="st">&quot;microbenchmark&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {
+  mat_bench =<span class="st"> </span>microbenchmark::<span class="kw">microbenchmark</span>(
+    <span class="dt">mat_0 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">0</span><span class="st">`</span>$mat, dist_mat),
+    <span class="dt">sparse_0 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">0</span><span class="st">`</span>$sparse, dist_mat),
+    <span class="dt">mat_1 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">1</span><span class="st">`</span>$mat, dist_mat),
+    <span class="dt">sparse_1 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">1</span><span class="st">`</span>$sparse, dist_mat),
+    <span class="dt">mat_2 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">2</span><span class="st">`</span>$mat, dist_mat),
+    <span class="dt">sparse_2 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">2</span><span class="st">`</span>$sparse, dist_mat),
+    <span class="dt">mat_49 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">49</span><span class="st">`</span>$mat, dist_mat),
+    <span class="dt">sparse_49 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">49</span><span class="st">`</span>$sparse, dist_mat),
+    <span class="dt">mat_99 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">99</span><span class="st">`</span>$mat, dist_mat),
+    <span class="dt">sparse_99 =</span> <span class="kw">distinctiveness</span>(all_mats$<span class="st">`</span><span class="dt">99</span><span class="st">`</span>$sparse, dist_mat),
+    <span class="dt">times =</span> <span class="dv">5</span>)
+  
+  <span class="kw">autoplot</span>(mat_bench)
+}</code></pre></div>
 </div>
 </div>
 </div>
@@ -223,7 +227,7 @@ all_mats =<span class="st"> </span><span class="kw">lapply</span>(n_zero_vector,
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
