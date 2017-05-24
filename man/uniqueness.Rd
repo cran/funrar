@@ -2,7 +2,7 @@
 % Please edit documentation in R/uniqueness.R
 \name{uniqueness}
 \alias{uniqueness}
-\title{Functional Uniqueness for site-sepcies matrix matrix}
+\title{Functional Uniqueness for site-species matrix matrix}
 \usage{
 uniqueness(pres_matrix, dist_matrix)
 }
@@ -14,8 +14,8 @@ abundances), with sites in rows and species in columns}
 }
 \value{
 A data.frame with functional uniqueness values per species, with one
-    column with provided species column name and the \strong{Ui} column with
-    functional uniqueness values.
+column with provided species column name and the \strong{Ui} column with
+functional uniqueness values.
 }
 \description{
 Computes the functional uniqueness from a site-species matrix with the
@@ -23,8 +23,8 @@ provided functional distance matrix. Functional Uniqueness represents how
 "isolated" is a species in the global species pool, it is the functional
 distance to the nearest neighbor of the species of interest (see \code{Details}
 section for the formula). The sites-species matrix should have \strong{sites}
-in \strong{rows} and \strong{species} in \strong{columns}, similar to
-\pkg{vegan} package defaults.
+in \strong{rows} and \strong{species} in \strong{columns}, similar to \pkg{vegan} package
+defaults.
 }
 \details{
 Functional Uniqueness \eqn{U_i} is computed as follow:
@@ -33,7 +33,7 @@ Functional Uniqueness \eqn{U_i} is computed as follow:
 }{
  U_i = min(d_ij),
 }
-with \eqn{U_i} the functional uniqueness of speices \eqn{i}, and \eqn{d_ij}
+with \eqn{U_i} the functional uniqueness of species \eqn{i}, and \eqn{d_ij}
 the functional distance between species \eqn{i} and species \eqn{j}
 }
 \examples{
@@ -51,8 +51,14 @@ dist_mat = compute_dist_matrix(tra)
 ui = uniqueness(mat, dist_mat)
 head(ui)
 
+# Computing uniqueness for each community
+com_ui = apply(mat, 1,
+                function(x, dist_m) {
+                    smaller_com = x[x > 0 & !is.na(x)]
+                    uniqueness(t(as.matrix(smaller_com)), dist_m)
+                }, dist_m = dist_mat)
+
 }
 \seealso{
-\code{\link[funrar]{distinctiveness}}, \code{\link[funrar]{restrictedness}},
-\code{\link[funrar]{scarcity}}
+\code{\link[=distinctiveness]{distinctiveness()}}, \code{\link[=restrictedness]{restrictedness()}}, \code{\link[=scarcity]{scarcity()}}
 }

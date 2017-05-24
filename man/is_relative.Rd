@@ -18,7 +18,21 @@ From an abundance/presence-absence matrix or data.frame tells if it contains
 relative abundances or absolute abundances. Checks if all abundances are
 between 1 and 0 but \strong{never checks sum of abundances per community}.
 }
+\examples{
+data("aravo", package = "ade4")
+
+# Site-species matrix
+mat = as.matrix(aravo$spe)
+head(mat)[, 1:5]  # Has absolute abundances
+rel_mat = make_relative(mat)
+head(rel_mat)  # Relative abundances
+
+# Forced to use ':::' becasue function is not exported
+funrar:::is_relative(mat)      # FALSE
+funrar:::is_relative(rel_mat)  # TRUE
+
+}
 \seealso{
-\code{\link[funrar]{make_relative}} to transform matrix into a
-  relative abundance matrix.
+\code{\link[=make_relative]{make_relative()}} to transform matrix into a relative abundance
+matrix.
 }

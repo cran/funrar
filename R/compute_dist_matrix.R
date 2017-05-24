@@ -1,32 +1,53 @@
 #' Functional Distance Matrix
 #'
-#' Wrapper for \code{\link[cluster]{daisy}} function in \code{cluster} package,
+#' Wrapper for [cluster::daisy()] function in `cluster` package,
 #' to compute distance matrix of trait between each pair of species present in
-#' given \code{traits_table}, each row represents a species and each column
-#' a trait. To be able to compute other metrics \code{traits_table} must have
+#' given `traits_table`, each row represents a species and each column
+#' a trait. To be able to compute other metrics `traits_table` must have
 #' species name as row names.
 #'
-#' @param traits_table a data.sframe of traits with species in row and traits in
-#'     columns, \strong{row names} should be \strong{species names},
+#' @param traits_table a data.frame of traits with species in row and traits in
+#'     columns, **row names** should be **species names**,
 #'
-#' @param metric character vector in list \code{'gower'}, \code{'manhattan'},
-#' \code{'euclidean'} defining the type of distance to use (see \code{\link[cluster]{daisy}}),
-#' see Details section.
+#' @param metric character vector in list `'gower'`, `'manhattan'`,
+#' `'euclidean'` defining the type of distance to use (see [cluster::daisy()]),
+#' see Details section,
+#'
+#' @param center logical that defines if traits should be centered (only in the
+#'               case of `'euclidean'` distance)
+#'
+#' @param scale logical that defines if traits should be scaled (only in the
+#'              case of `'euclidean'` distance)
 #'
 #'
 #' @return
-#' A functional distance matrix, \strong{column} and \strong{row} names follow
-#' \strong{species name} from \code{trait_table} row names.
+#' A functional distance matrix, **column** and **row** names follow
+#' **species name** from `traits_table` row names.
 #'
 #'
 #' @details The functional distance matrix can be computed using any type of
 #'     distance metric. When traits are both quantitative and qualitative Gower's
-#'     distance can be used. Otherwise, any other distance metric (Euclidean,
-#'     Manhattan, Minkowski) can be used - as long as the rows and the columns
-#'     are named following the species.
+#'     (Gower, 1971; Podani, 1999) distance can be used. Otherwise, any other
+#'     distance metric (Euclidean, Manhattan, Minkowski) can be used - as long
+#'     as the rows and the columns are named following the species. When using
+#'     mixed data consider also Gower's distance extension by Pavoine et al.
+#'     (2009).
 #'
-#' @seealso \code{\link[cluster]{daisy}} which this function wraps,
-#'     \code{\link[stats]{dist}}
+#' @references
+#'     Gower, J.C. (1971) A general coefficient of similarity and some of its
+#'     properties. Biometrics, 857–871.
+#'
+#'     Podani, J. (1999) Extending Gower’s general coefficient of similarity
+#'     to ordinal characters. Taxon, 331–340.
+#'
+#'     Pavoine, S., Vallet, J., Dufour, A.-B., Gachet, S., & Daniel, H. (2009)
+#'     On the challenge of treating various types of variables: application for
+#'     improving the measurement of functional diversity. Oikos, 118, 391–402.
+#'
+#'
+#' @seealso [cluster::daisy()] which this function wraps, base [stats::dist()]
+#' or [ade4::dist.ktab()] for Pavoine et al. (2009) extension of Gower's
+#' distance.
 #'
 #' @examples
 #' set.seed(1)  # For reproducibility
@@ -42,7 +63,8 @@
 #' @aliases distance_matrix
 #' @importFrom dplyr %>%
 #' @export
-compute_dist_matrix = function(traits_table, metric = "gower") {
+compute_dist_matrix = function(traits_table, metric = "gower", center = FALSE,
+                               scale = FALSE) {
 
   if (is.null(rownames(traits_table)) ||
               rownames(traits_table) == as.character(seq_len(
@@ -52,7 +74,17 @@ compute_dist_matrix = function(traits_table, metric = "gower") {
                   sep = "\n"))
   }
 
-  # Use Gower's distance to compute traits distance
+  if (metric == "euclidean" & (center | scale)) {
+    if (all(vapply(traits_table, is.numeric, TRUE))) {
+      traits_table = scale(traits_table, center, scale)
+    } else {
+      stop("Non-numeric traits provided cannot scale nor center")
+    }
+  } else if (metric != "euclidean" & (center | scale)) {
+    stop("'", metric, "' distance cannot be scaled nor centered")
+  }
+
+  # Use given distance to compute traits distance
   dist_matrix = cluster::daisy(traits_table, metric = metric) %>%
     as.matrix()
 

@@ -5,22 +5,29 @@
 \alias{distance_matrix}
 \title{Functional Distance Matrix}
 \usage{
-compute_dist_matrix(traits_table, metric = "gower")
+compute_dist_matrix(traits_table, metric = "gower", center = FALSE,
+  scale = FALSE)
 }
 \arguments{
-\item{traits_table}{a data.sframe of traits with species in row and traits in
+\item{traits_table}{a data.frame of traits with species in row and traits in
 columns, \strong{row names} should be \strong{species names},}
 
 \item{metric}{character vector in list \code{'gower'}, \code{'manhattan'},
-\code{'euclidean'} defining the type of distance to use (see \code{\link[cluster]{daisy}}),
-see Details section.}
+\code{'euclidean'} defining the type of distance to use (see \code{\link[cluster:daisy]{cluster::daisy()}}),
+see Details section,}
+
+\item{center}{logical that defines if traits should be centered (only in the
+case of \code{'euclidean'} distance)}
+
+\item{scale}{logical that defines if traits should be scaled (only in the
+case of \code{'euclidean'} distance)}
 }
 \value{
 A functional distance matrix, \strong{column} and \strong{row} names follow
-\strong{species name} from \code{trait_table} row names.
+\strong{species name} from \code{traits_table} row names.
 }
 \description{
-Wrapper for \code{\link[cluster]{daisy}} function in \code{cluster} package,
+Wrapper for \code{\link[cluster:daisy]{cluster::daisy()}} function in \code{cluster} package,
 to compute distance matrix of trait between each pair of species present in
 given \code{traits_table}, each row represents a species and each column
 a trait. To be able to compute other metrics \code{traits_table} must have
@@ -28,10 +35,12 @@ species name as row names.
 }
 \details{
 The functional distance matrix can be computed using any type of
-    distance metric. When traits are both quantitative and qualitative Gower's
-    distance can be used. Otherwise, any other distance metric (Euclidean,
-    Manhattan, Minkowski) can be used - as long as the rows and the columns
-    are named following the species.
+distance metric. When traits are both quantitative and qualitative Gower's
+(Gower, 1971; Podani, 1999) distance can be used. Otherwise, any other
+distance metric (Euclidean, Manhattan, Minkowski) can be used - as long
+as the rows and the columns are named following the species. When using
+mixed data consider also Gower's distance extension by Pavoine et al.
+(2009).
 }
 \examples{
 set.seed(1)  # For reproducibility
@@ -45,7 +54,20 @@ rownames(trait) = trait$sp
 dist_mat = compute_dist_matrix(trait[, -1])
 
 }
+\references{
+\preformatted{Gower, J.C. (1971) A general coefficient of similarity and some of its
+properties. Biometrics, 857–871.
+
+Podani, J. (1999) Extending Gower’s general coefficient of similarity
+to ordinal characters. Taxon, 331–340.
+
+Pavoine, S., Vallet, J., Dufour, A.-B., Gachet, S., & Daniel, H. (2009)
+On the challenge of treating various types of variables: application for
+improving the measurement of functional diversity. Oikos, 118, 391–402.
+}
+}
 \seealso{
-\code{\link[cluster]{daisy}} which this function wraps,
-    \code{\link[stats]{dist}}
+\code{\link[cluster:daisy]{cluster::daisy()}} which this function wraps, base \code{\link[stats:dist]{stats::dist()}}
+or \code{\link[ade4:dist.ktab]{ade4::dist.ktab()}} for Pavoine et al. (2009) extension of Gower's
+distance.
 }
