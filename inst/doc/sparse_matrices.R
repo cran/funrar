@@ -29,21 +29,21 @@ print(object.size(my_mat), units = "Kb")
 str(sparse_mat)
 print(object.size(sparse_mat), units = "Kb")
 
-## ----microBenchDist------------------------------------------------------
-library(funrar)
-
-# Get a table of traits
-trait_df = data.frame(trait = runif(ncol(my_mat), 0, 1))
-rownames(trait_df) = paste0("sp", 1:ncol(my_mat))
-
-# Compute distance matrix
-dist_mat = compute_dist_matrix(trait_df)
-
-if (requireNamespace("microbenchmark", quietly = TRUE)) {
-  microbenchmark::microbenchmark(
-    regular = distinctiveness(my_mat, dist_mat),
-    sparse = distinctiveness(sparse_mat, dist_mat))
-}
+## ----microBenchDist, eval = FALSE----------------------------------------
+#  library(funrar)
+#  
+#  # Get a table of traits
+#  trait_df = data.frame(trait = runif(ncol(my_mat), 0, 1))
+#  rownames(trait_df) = paste0("sp", 1:ncol(my_mat))
+#  
+#  # Compute distance matrix
+#  dist_mat = compute_dist_matrix(trait_df)
+#  
+#  if (requireNamespace("microbenchmark", quietly = TRUE)) {
+#    microbenchmark::microbenchmark(
+#      regular = distinctiveness(my_mat, dist_mat),
+#      sparse = distinctiveness(sparse_mat, dist_mat))
+#  }
 
 ## ----fillingInfluence----------------------------------------------------
 generate_matrix = function(n_zero = 5, nrow = 200, ncol = 1000) {
