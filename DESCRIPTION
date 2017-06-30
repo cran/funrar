@@ -1,6 +1,6 @@
 Package: funrar
 Title: Functional Rarity Indices Computation
-Version: 1.1.1
+Version: 1.2.0
 Authors@R: c(
   person("Matthias", "Grenié", email = "matthias.grenie@gmail.com", role = c("aut", "cre")),
   person("Pierre", "Denelle", email = "pierre.denelle@cefe.cnrs.fr", role = "aut"),
@@ -21,10 +21,10 @@ Suggests: ade4, ggplot2, knitr, Matrix, rmarkdown, testthat
 VignetteBuilder: knitr
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2017-06-27 15:37:55 UTC; grenie
+Packaged: 2017-06-29 21:30:18 UTC; Rekyt
 Author: Matthias Grenié [aut, cre],
   Pierre Denelle [aut],
   Caroline Tucker [aut]
 Maintainer: Matthias Grenié <matthias.grenie@gmail.com>
 Repository: CRAN
-Date/Publication: 2017-06-27 15:50:00 UTC
+Date/Publication: 2017-06-30 08:09:11 UTC
