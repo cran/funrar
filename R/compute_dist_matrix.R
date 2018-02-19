@@ -31,7 +31,8 @@
 #'     distance metric (Euclidean, Manhattan, Minkowski) can be used - as long
 #'     as the rows and the columns are named following the species. When using
 #'     mixed data consider also Gower's distance extension by Pavoine et al.
-#'     (2009).
+#'     (2009). **IMPORTANT NOTE**: in order to get functional rarity indices
+#'     between 0 and 1, the distance metric has to be scaled between 0 and 1.
 #'
 #' @references
 #'     Gower, J.C. (1971) A general coefficient of similarity and some of its
@@ -61,32 +62,38 @@
 #' dist_mat = compute_dist_matrix(trait[, -1])
 #'
 #' @aliases distance_matrix
-#' @importFrom dplyr %>%
 #' @export
 compute_dist_matrix = function(traits_table, metric = "gower", center = FALSE,
                                scale = FALSE) {
 
   if (is.null(rownames(traits_table)) ||
-              rownames(traits_table) == as.character(seq_len(
-                nrow(traits_table)))) {
-    warning(paste("No row names provided in trait table",
-                  "Distinctiveness and scarcity won't be computable",
-                  sep = "\n"))
+      rownames(traits_table) == as.character(seq_len(
+        nrow(traits_table)))) {
+    warning("No row names provided in trait table\n",
+            "Distinctiveness and scarcity won't be computable")
   }
 
-  if (metric == "euclidean" & (center | scale)) {
+  if (metric == "euclidean") {
+
     if (all(vapply(traits_table, is.numeric, TRUE))) {
       traits_table = scale(traits_table, center, scale)
     } else {
-      stop("Non-numeric traits provided cannot scale nor center")
+      stop("Non-numeric traits provided. Cannot compute euclidean distance")
     }
-  } else if (metric != "euclidean" & (center | scale)) {
-    stop("'", metric, "' distance cannot be scaled nor centered")
+
+  } else if (metric != "euclidean") {
+
+    if (all(vapply(traits_table, is.numeric, TRUE))) {
+      warning("Only numeric traits provided, consider using euclidean ",
+              "distance.")
+    }
+
+    if (center | scale) {
+      stop("'", metric, "' distance cannot be scaled nor centered")
+    }
   }
 
   # Use given distance to compute traits distance
-  dist_matrix = cluster::daisy(traits_table, metric = metric) %>%
-    as.matrix()
+  as.matrix(cluster::daisy(traits_table, metric = metric))
 
-  return(dist_matrix)
 }
