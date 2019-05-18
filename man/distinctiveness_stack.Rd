@@ -2,9 +2,14 @@
 % Please edit documentation in R/distinctiveness.R
 \name{distinctiveness_stack}
 \alias{distinctiveness_stack}
+\alias{distinctiveness_tidy}
 \title{Functional Distinctiveness on a stacked data.frame}
 \usage{
-distinctiveness_stack(com_df, sp_col, com, abund = NULL, dist_matrix)
+distinctiveness_stack(com_df, sp_col, com, abund = NULL, dist_matrix,
+  relative = FALSE)
+
+distinctiveness_tidy(com_df, sp_col, com, abund = NULL, dist_matrix,
+  relative = FALSE)
 }
 \arguments{
 \item{com_df}{a stacked (= tidy) data.frame from a single community with each
@@ -19,6 +24,10 @@ abundances values}
 
 \item{dist_matrix}{a functional distance matrix as given by
 \code{compute_dist_matrix()}, with species name as row and column names}
+
+\item{relative}{a logical indicating if distinctiveness should be scaled
+relatively to the community (scaled by max functional
+distance among the species of the targeted community)}
 }
 \value{
 the same data.frame with the additional \strong{Di} column giving
@@ -36,6 +45,8 @@ functional rarity indices vignette included in the package
 (type \code{vignette("rarity_indices", package = "funrar")}), for more details
 on the metric. \strong{IMPORTANT NOTE}: in order to get functional rarity indices
 between 0 and 1, the distance metric has to be scaled between 0 and 1.
+You can either use \code{_stack()} or \code{_tidy()} functions as they are aliases of
+one another.
 }
 \examples{
 data("aravo", package = "ade4")

@@ -1,3 +1,16 @@
+# funrar 1.3.0
+
+## NEW FEATURES
+
+* Add `_tidy()` aliases for each `_stack()` function for easier reading (fix #29).
+* `distinctiveness_stack()` returns `NA` as distinctiveness values for absent species (#30).
+* New definition of functional distinctiveness based on range see `distinctiveness_range()`.
+* New definition of functional distinctiveness based on range with different formula see `distinctiveness_alt()`.
+
+## BUG FIX
+
+* Warning when distinctiveness equals `NaN` in `distinctiveness_stack()` (#30).
+
 # funrar 1.2.2
 
 * Fix a bug in the test of `distinctiveness_dimensions()` that generated errors on cran server.
@@ -5,7 +18,7 @@
 # funrar 1.2.1
 
 * Add Authors' ORCID and all contributors;
-* funrar paper is now included in DESCRIPTION, README.md and has a proper CITATIONq file;
+* funrar paper is now included in DESCRIPTION, README.md and has a proper CITATION file;
 * Fix typos in documentation;
 * Transformation from tidy data.frame to sparse matrix is now possible using `stack_to_matrix(x, sparse = TRUE)` (#25);
 * Add a warning message when using only continuous traits with function `comput_dist_matrix()`, as it defaults to Gower's distance (#27);
@@ -37,7 +50,7 @@
 * Updated citation for Violle et al. 2017,
 * Use package [`goodpractice`](https://github.com/MangoTheCat/goodpractice) to enforce better code style,
 * Add `is_relative()` function to test if matrix contains relative abundances, `scarcity()` and `distinctiveness()` now warns if it is not the case (#21),
-* Conditionnally use [`microbenchmark`](https://cran.r-project.org/package=microbenchmark) following CRAN advices.
+* Conditionnal use [`microbenchmark`](https://cran.r-project.org/package=microbenchmark) following CRAN advice.
 
 
 # funrar 1.0.2
