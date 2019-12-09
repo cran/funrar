@@ -1,7 +1,7 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 species_df = data.frame(
   species =     c("a", "b", "c"),
   trait_value = c(-1, 0, 0.5)
@@ -12,7 +12,7 @@ species_distance = dist(c(a = -1, b = 0, c =0.5))
 plot(species_df)
 species_distance
 
-## ----new_distinctiveness-------------------------------------------------
+## ----new_distinctiveness------------------------------------------------------
 alternative_distinctiveness = function(pres_mat, distance_obj, given_T) {
   dist_mat = as.matrix(distance_obj)
   
@@ -20,7 +20,7 @@ alternative_distinctiveness = function(pres_mat, distance_obj, given_T) {
   dist_mat = dist_mat[kept_sp, kept_sp, drop = FALSE]
   
   
-  # Correspondance matrix (tracking which species we want to keep)
+  # Correspondence matrix (tracking which species we want to keep)
   corr_dist = dist_mat
   corr_dist[dist_mat > given_T] = 0
   corr_dist[dist_mat <= given_T] = 1
@@ -44,7 +44,7 @@ alternative_distinctiveness = function(pres_mat, distance_obj, given_T) {
   dplyr::mutate(funrar::matrix_to_stack(di_mat, "Di"), given_range = given_T)
 }
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 presence_matrix = matrix(c(rep(1, 3), 1, 0, 1, 1, 1, 0), nrow = 3, ncol = 3,
                          dimnames = list(site = c("s1", "s2", "s3"),
                                          species = c("a", "b", "c")))
@@ -57,7 +57,7 @@ all_T = lapply(seq(0.5, 1.5, length.out = 50),
 
 all_T = dplyr::bind_rows(all_T)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(ggplot2)
 
 ggplot(all_T, aes(given_range, Di, color = species)) +
@@ -67,7 +67,7 @@ ggplot(all_T, aes(given_range, Di, color = species)) +
        y = "Functional Distinctiveness",
        color = "Species")
 
-## ----aravo_new_distinct--------------------------------------------------
+## ----aravo_new_distinct-------------------------------------------------------
 library("funrar")
 
 data("aravo", package = "ade4")
@@ -92,7 +92,7 @@ all_ranges = lapply(seq(0, 1, length.out = 50), function(given_range) {
 
 all_ranges = dplyr::bind_rows(all_ranges)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ggplot(subset(all_ranges, site %in% c("AR07", "AR51", "AR02")),
        aes(given_range, Di, group = species)) +
   geom_line(alpha = 1/3) +
@@ -100,7 +100,7 @@ ggplot(subset(all_ranges, site %in% c("AR07", "AR51", "AR02")),
   labs(x = "Maximum Distance Range Considered\n(Trait Range)",
        y = "Functional Distinctiveness")
 
-## ----scaled_range--------------------------------------------------------
+## ----scaled_range-------------------------------------------------------------
 all_ranges = dplyr::mutate(all_ranges, scaled_Di =
                              ifelse(Di != 1, Di / given_range, Di))
 
@@ -111,7 +111,7 @@ ggplot(subset(all_ranges, site %in% c("AR07", "AR51", "AR02")),
   labs(x = "Considered Trait Range\n(Functional Distance)",
        y = "Scaled Functional Distinctiveness\n(over trait range)")
 
-## ----new_distinctiveness_ab----------------------------------------------
+## ----new_distinctiveness_ab---------------------------------------------------
 ab_mat = matrix(c(rep(1/3, 3), 1/6, 1/6, 4/6, 4/6, 1/6, 1/6), nrow = 3, ncol = 3,
                          dimnames = list(site = c("s1", "s2", "s3"),
                                          species = c("a", "b", "c")),
@@ -151,7 +151,7 @@ alternative_distinctiveness_abundance = function(abund_mat, dist_matrix,
                 given_range = given_range)
 }
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ab_di_all_ranges = lapply(seq(0, 1.5, length.out = 50),
        function(given_number) alternative_distinctiveness_abundance(ab_mat,
                                                           as.matrix(species_distance),

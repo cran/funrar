@@ -1,4 +1,4 @@
-## ----sparseMatExample----------------------------------------------------
+## ----sparseMatExample---------------------------------------------------------
 # Generate a matrix with 1000 species and 200 sites
 my_mat = matrix(sample(c(0, 0, 0, 0, 0, 0, 1), replace = TRUE, size = 200000),
                 ncol = 1000, nrow = 200)
@@ -7,12 +7,12 @@ rownames(my_mat) = paste0("site", 1:nrow(my_mat))
 
 my_mat[1:5, 1:5]
 
-## ----estimateFilling-----------------------------------------------------
+## ----estimateFilling----------------------------------------------------------
 filling = 1 - sum(my_mat == 0)/(ncol(my_mat)*nrow(my_mat))
 
 filling
 
-## ----convertSparseMat----------------------------------------------------
+## ----convertSparseMat---------------------------------------------------------
 library(Matrix)
 
 sparse_mat = as(my_mat, "sparseMatrix")
@@ -20,7 +20,7 @@ sparse_mat = as(my_mat, "sparseMatrix")
 is(my_mat, "sparseMatrix")
 is(sparse_mat, "sparseMatrix")
 
-## ----memoryUsage---------------------------------------------------------
+## ----memoryUsage--------------------------------------------------------------
 # Regular Matrix
 str(my_mat)
 print(object.size(my_mat), units = "Kb")
@@ -29,7 +29,7 @@ print(object.size(my_mat), units = "Kb")
 str(sparse_mat)
 print(object.size(sparse_mat), units = "Kb")
 
-## ----microBenchDist, eval = FALSE----------------------------------------
+## ----microBenchDist, eval = FALSE---------------------------------------------
 #  library(funrar)
 #  
 #  # Get a table of traits
@@ -45,7 +45,7 @@ print(object.size(sparse_mat), units = "Kb")
 #      sparse = distinctiveness(sparse_mat, dist_mat))
 #  }
 
-## ----fillingInfluence----------------------------------------------------
+## ----fillingInfluence---------------------------------------------------------
 generate_matrix = function(n_zero = 5, nrow = 200, ncol = 1000) {
   matrix(sample(c(rep(0, n_zero), 1), replace = TRUE, size = nrow*ncol),
                 ncol = ncol, nrow = nrow)
@@ -73,7 +73,7 @@ all_mats = lapply(n_zero_vector, sparse_and_mat)
 mat_filling(all_mats$`0`$mat)
 mat_filling(all_mats$`99`$mat)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  if (requireNamespace("microbenchmark", quietly = TRUE)) {
 #    mat_bench = microbenchmark::microbenchmark(
 #      mat_0 = distinctiveness(all_mats$`0`$mat, dist_mat),

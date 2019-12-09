@@ -1,15 +1,15 @@
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 data("aravo", package = "ade4")
 
 str(aravo)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Site-species matrix stored in aravo$spe
 mat = as.matrix(aravo$spe)
 
 mat[1:5, 1:5]
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(funrar)
 
 dat = matrix_to_stack(mat, "value", "site", "species")
@@ -21,21 +21,21 @@ identical(as.numeric(stack_to_matrix(dat, "site", "species", "value")), as.numer
 # Removal of empty rows
 dat = dat[which(dat$value > 0), ]
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 tra = aravo$traits[, c("Height", "SLA", "N_mass")]
 head(tra)
 
 dist_mat = compute_dist_matrix(tra)
 dist_mat[1:5, 1:5]
 
-## ----distinctivenessComputation------------------------------------------
+## ----distinctivenessComputation-----------------------------------------------
 # Compute distinctiveness for each species on each site
 di = distinctiveness(pres_matrix = mat,  # The site x species matrix
                      dist_matrix = dist_mat)  # Functional Distance matrix
 
 di[1:5, 1:5]
 
-## ----computeDi-----------------------------------------------------------
+## ----computeDi----------------------------------------------------------------
 # Species should be character
 dat$species = as.character(dat$species)
 
@@ -48,38 +48,38 @@ di_df = distinctiveness_stack(com_df = dat,  # The site x species table
 
 head(di_df)
 
-## ----abundDi-------------------------------------------------------------
+## ----abundDi------------------------------------------------------------------
 di_df = distinctiveness_stack(dat, "species", "site", "value", dist_mat)
 
 head(di_df)
 
-## ----scarcityComp--------------------------------------------------------
+## ----scarcityComp-------------------------------------------------------------
 si = scarcity(pres_matrix = mat)
 
 si[1:5, 1:5]
 
-## ----siComp--------------------------------------------------------------
+## ----siComp-------------------------------------------------------------------
 si_df = scarcity_stack(dat, "species", "site", "value")
 
 head(si_df)
 
-## ----uniqComp------------------------------------------------------------
+## ----uniqComp-----------------------------------------------------------------
 ui = uniqueness(mat, dist_mat)
 
 head(ui)
 
-## ----uiComp--------------------------------------------------------------
+## ----uiComp-------------------------------------------------------------------
 ui_df = uniqueness_stack(dat, "species", dist_mat)
 
 head(ui_df)
 dim(ui_df[!duplicated(ui_df$species), ])
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ri = restrictedness(mat)
 
 head(ri)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Species should be character
 dat$site = as.character(dat$site)
 
@@ -87,7 +87,7 @@ ri_df = restrictedness_stack(dat, "species", "site")
 
 head(ri_df)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 all_ind = funrar(mat, dist_mat, rel_abund = TRUE)
 
 str(all_ind)
@@ -97,7 +97,7 @@ identical(all_ind$Di, di)
 identical(all_ind$Ri, ri)
 identical(all_ind$Si, si)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(ggplot2)
 library(dplyr)
 
