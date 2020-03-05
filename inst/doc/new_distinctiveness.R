@@ -7,9 +7,8 @@ species_df = data.frame(
   trait_value = c(-1, 0, 0.5)
 )
 
-species_distance = dist(c(a = -1, b = 0, c =0.5))
+species_distance = dist(c(a = -1, b = 0, c = 0.5))
 
-plot(species_df)
 species_distance
 
 ## ----new_distinctiveness------------------------------------------------------
@@ -126,7 +125,7 @@ alternative_distinctiveness_abundance = function(abund_mat, dist_matrix,
   dist_mat = dist_mat[kept_sp, kept_sp, drop = FALSE]
   
   
-  # Correspondance matrix (tracking which species we want to keep)
+  # Correspondence matrix (tracking which species we want to keep)
   corr_dist = dist_mat
   corr_dist[dist_mat > given_range] = 0
   corr_dist[dist_mat <= given_range] = 1
