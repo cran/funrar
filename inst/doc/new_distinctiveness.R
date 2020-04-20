@@ -40,7 +40,10 @@ alternative_distinctiveness = function(pres_mat, distance_obj, given_T) {
   di_mat = t(di_mat)
   dimnames(di_mat) = dimnames(pres_mat)
   
-  dplyr::mutate(funrar::matrix_to_stack(di_mat, "Di"), given_range = given_T)
+  di_df = funrar::matrix_to_stack(di_mat, "Di")
+  di_df$given_range = given_T
+  
+  return(di_df)
 }
 
 ## -----------------------------------------------------------------------------
@@ -50,11 +53,12 @@ presence_matrix = matrix(c(rep(1, 3), 1, 0, 1, 1, 1, 0), nrow = 3, ncol = 3,
 
 # Test over a ragne of possible T values
 all_T = lapply(seq(0.5, 1.5, length.out = 50),
-       function(given_number) alternative_distinctiveness(presence_matrix,
-                                                          species_distance,
-                                                          given_number))
+       function(given_number)  alternative_distinctiveness(
+         presence_matrix,
+         species_distance,
+         given_number))
 
-all_T = dplyr::bind_rows(all_T)
+all_T = do.call(rbind.data.frame, all_T)
 
 ## -----------------------------------------------------------------------------
 library(ggplot2)
@@ -89,7 +93,7 @@ all_ranges = lapply(seq(0, 1, length.out = 50), function(given_range) {
   alternative_distinctiveness(mat, as.dist(dist_mat), given_range)
 })
 
-all_ranges = dplyr::bind_rows(all_ranges)
+all_ranges = do.call(rbind.data.frame, all_ranges)
 
 ## -----------------------------------------------------------------------------
 ggplot(subset(all_ranges, site %in% c("AR07", "AR51", "AR02")),
@@ -100,8 +104,10 @@ ggplot(subset(all_ranges, site %in% c("AR07", "AR51", "AR02")),
        y = "Functional Distinctiveness")
 
 ## ----scaled_range-------------------------------------------------------------
-all_ranges = dplyr::mutate(all_ranges, scaled_Di =
-                             ifelse(Di != 1, Di / given_range, Di))
+all_ranges$scaled_Di = ifelse(
+  all_ranges$Di != 1,
+  all_ranges$Di / all_ranges$given_range,
+  all_ranges$Di)
 
 ggplot(subset(all_ranges, site %in% c("AR07", "AR51", "AR02")),
        aes(given_range, scaled_Di, group = species)) +
@@ -146,8 +152,10 @@ alternative_distinctiveness_abundance = function(abund_mat, dist_matrix,
   di_mat = t(di_mat)
   dimnames(di_mat) = dimnames(abund_mat)
   
-  dplyr::mutate(funrar::matrix_to_stack(di_mat, "Di"),
-                given_range = given_range)
+  di_df = funrar::matrix_to_stack(di_mat, "Di")
+  di_df$given_range = given_range
+  
+  return(di_df)
 }
 
 ## -----------------------------------------------------------------------------
@@ -156,7 +164,7 @@ ab_di_all_ranges = lapply(seq(0, 1.5, length.out = 50),
                                                           as.matrix(species_distance),
                                                           given_number))
 
-ab_di_all_ranges = dplyr::bind_rows(ab_di_all_ranges)
+ab_di_all_ranges = do.call(rbind.data.frame, ab_di_all_ranges)
 
 ggplot(ab_di_all_ranges, aes(given_range, Di, color = species)) +
   geom_line(size = 1) +

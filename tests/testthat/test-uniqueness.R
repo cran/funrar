@@ -15,9 +15,10 @@ log_mat = (valid_mat == 1)
 suppressWarnings({
   com_df = lapply(rownames(log_mat), function(x) {
     species = colnames(valid_mat)[log_mat[x, ]]
-    data.frame(site = rep(x, length(species)), species = species)
-  }) %>%
-    bind_rows()
+    data.frame(site = rep(x, length(species)), species = species,
+               stringsAsFactors = FALSE)
+  })
+  com_df = do.call(rbind.data.frame, com_df)
 })
 
 
@@ -34,23 +35,22 @@ dist_mat = compute_dist_matrix(trait_df)
 # Distinctiveness data --------------------------------------------------------
 
 # Final distinctiveness table for all communities
-correct_dist = structure(list(site = c("s1", "s1", "s2", "s2", "s2", "s3",
-                                       "s3", "s4", "s4"),
-                              species = c("a", "b", "b", "c", "d","b", "c",
-                                          "c", "d"),
-                              Di = c(1/9, 1/9, 6/9, 4/9, 6/9, 4/9, 4/9, 4/9,
-                                     4/9)),
-                         .Names = c("site", "species", "Di"),
-                         row.names = c(NA, -9L), class = c("tbl_df", "tbl",
-                                                           "data.frame")) %>%
-  # Forced to arrange by species to specify for distinctiveness matrix
-  arrange(species)
+correct_dist = data.frame(
+  site    = c("s1", "s1", "s2", "s2", "s2", "s3", "s3", "s4", "s4"),
+  species = c("a", "b", "b", "c", "d","b", "c", "c", "d"),
+  Di      = c(1/9, 1/9, 6/9, 4/9, 6/9, 4/9, 4/9, 4/9, 4/9),
+  stringsAsFactors = FALSE
+)
 
 correct_dist_mat = table(correct_dist$site, correct_dist$species)
 
 correct_dist_mat[which(correct_dist_mat == 0)] = NA_real_
 
 correct_dist_mat[which(correct_dist_mat == 1)] = correct_dist$Di
+correct_dist_mat[2, 3] = 4/9
+correct_dist_mat[2, 4] = 6/9
+
+names(dimnames(correct_dist_mat)) = c("site", "species")
 
 # Distinctiveness with abundances
 correct_dist_ab = correct_dist

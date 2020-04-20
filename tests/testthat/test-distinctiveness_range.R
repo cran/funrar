@@ -1,5 +1,4 @@
 context("Test Range-based Distinctiveness")
-library("dplyr")
 
 # Initial data -----------------------------------------------------------------
 # Empty Matrix
@@ -22,9 +21,10 @@ log_mat = (valid_mat == 1)
 suppressWarnings({
   com_df = lapply(rownames(log_mat), function(x) {
     species = colnames(valid_mat)[log_mat[x, ]]
-    data.frame(site = rep(x, length(species)), species = species)
-  }) %>%
-    bind_rows()
+    data.frame(site = rep(x, length(species)), species = species,
+               stringsAsFactors = FALSE)
+  })
+  com_df = do.call(rbind.data.frame, com_df)
 })
 
 
@@ -77,20 +77,17 @@ good_di_relative_max = matrix(c(1,    1, NA,   NA,
 
 ## Abundances ------------------------------------------------------------------
 # Define Abundance Matrix
-com_df_ex = bind_cols(com_df, data.frame(abund = c(0.3, 0.7, 0.2, 0.6,
+com_df_ex = cbind(com_df, data.frame(abund = c(0.3, 0.7, 0.2, 0.6,
                                                    0.2, 0.5, 0.5, 0.2,
                                                    0.8)))
 
 abund_mat = valid_mat
-abund_mat[abund_mat == 1] = com_df_ex %>%
-  arrange(species) %>%
-  .$abund
+abund_mat[abund_mat == 1] = com_df_ex[order(com_df_ex$species), "abund"]
 
 # Define Abundance tidy table
-abund_com = abund_mat %>%
-  matrix_to_stack(value_col = "abund", row_to_col = "site",
-                  col_to_col = "species") %>%
-  filter(abund > 0, site == "s3")
+abund_com = matrix_to_stack(abund_mat, value_col = "abund", row_to_col = "site",
+                  col_to_col = "species")
+abund_com = subset(abund_com, abund > 0 & site == "s3")
 abund_com$Di = c(4/9, 4/9)
 
 # Range-dependent good distinctiveness matrices

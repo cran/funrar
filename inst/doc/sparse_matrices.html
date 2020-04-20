@@ -12,7 +12,7 @@
 
 <meta name="author" content="Matthias Grenié" />
 
-<meta name="date" content="2020-03-05" />
+<meta name="date" content="2020-04-20" />
 
 <title>Sparse Matrices with funrar</title>
 
@@ -301,7 +301,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Sparse Matrices with <code>funrar</code></h1>
 <h4 class="author">Matthias Grenié</h4>
-<h4 class="date">2020-03-05</h4>
+<h4 class="date">2020-04-20</h4>
 
 
 
@@ -336,16 +336,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb1-6" title="6"></a>
 <a class="sourceLine" id="cb1-7" title="7">my_mat[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>]</a></code></pre></div>
 <pre><code>##       sp1 sp2 sp3 sp4 sp5
-## site1   1   0   0   0   0
-## site2   0   0   0   0   0
-## site3   0   0   1   0   0
-## site4   0   0   0   0   0
-## site5   1   0   0   0   0</code></pre>
+## site1   0   0   0   0   0
+## site2   1   0   0   0   0
+## site3   0   1   0   0   0
+## site4   0   1   0   0   1
+## site5   0   0   0   0   0</code></pre>
 <p><code>funrar</code> lets you use sparse matrices directly using a function implemented in the <code>Matrix</code> package. When your matrix is filled with 0s it can be quicker to use sparse matrices. To know if you should use sparse matrices you can compute the filling of your matrix, i.e. the percentage of non-zero cells in your matrix:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">filling =<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">sum</span>(my_mat <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)<span class="op">/</span>(<span class="kw">ncol</span>(my_mat)<span class="op">*</span><span class="kw">nrow</span>(my_mat))</a>
 <a class="sourceLine" id="cb3-2" title="2"></a>
 <a class="sourceLine" id="cb3-3" title="3">filling</a></code></pre></div>
-<pre><code>## [1] 0.14309</code></pre>
+<pre><code>## [1] 0.14451</code></pre>
 <p>To convert from a normal matrix to a sparse matrix you can use <code>as(my_mat, &quot;sparseMatrix&quot;)</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">library</span>(Matrix)</a>
 <a class="sourceLine" id="cb5-2" title="2"></a>
@@ -358,7 +358,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>it completely changes the structure as well as the memory it takes in the RAM:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="co"># Regular Matrix</span></a>
 <a class="sourceLine" id="cb9-2" title="2"><span class="kw">str</span>(my_mat)</a></code></pre></div>
-<pre><code>##  num [1:200, 1:1000] 1 0 0 0 1 0 0 0 0 0 ...
+<pre><code>##  num [1:200, 1:1000] 0 1 0 0 0 1 0 0 0 0 ...
 ##  - attr(*, &quot;dimnames&quot;)=List of 2
 ##   ..$ : chr [1:200] &quot;site1&quot; &quot;site2&quot; &quot;site3&quot; &quot;site4&quot; ...
 ##   ..$ : chr [1:1000] &quot;sp1&quot; &quot;sp2&quot; &quot;sp3&quot; &quot;sp4&quot; ...</code></pre>
@@ -367,16 +367,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="co"># Sparse Matrix from &#39;Matrix&#39; package</span></a>
 <a class="sourceLine" id="cb13-2" title="2"><span class="kw">str</span>(sparse_mat)</a></code></pre></div>
 <pre><code>## Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots
-##   ..@ i       : int [1:28618] 0 4 13 22 37 41 52 54 81 82 ...
-##   ..@ p       : int [1:1001] 0 27 55 84 109 134 165 196 227 254 ...
+##   ..@ i       : int [1:28902] 1 5 16 22 27 34 46 52 54 56 ...
+##   ..@ p       : int [1:1001] 0 28 55 80 104 136 171 194 231 258 ...
 ##   ..@ Dim     : int [1:2] 200 1000
 ##   ..@ Dimnames:List of 2
 ##   .. ..$ : chr [1:200] &quot;site1&quot; &quot;site2&quot; &quot;site3&quot; &quot;site4&quot; ...
 ##   .. ..$ : chr [1:1000] &quot;sp1&quot; &quot;sp2&quot; &quot;sp3&quot; &quot;sp4&quot; ...
-##   ..@ x       : num [1:28618] 1 1 1 1 1 1 1 1 1 1 ...
+##   ..@ x       : num [1:28902] 1 1 1 1 1 1 1 1 1 1 ...
 ##   ..@ factors : list()</code></pre>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="kw">print</span>(<span class="kw">object.size</span>(sparse_mat), <span class="dt">units =</span> <span class="st">&quot;Kb&quot;</span>)</a></code></pre></div>
-<pre><code>## 415.8 Kb</code></pre>
+<pre><code>## 419.2 Kb</code></pre>
 <p>sparse matrices reduce the amount of RAM necessary to store them. The more zeros there are in a given matrix the more RAM will be spared when turning it into a sparse matrix.</p>
 <div id="benchmark" class="section level2">
 <h2>Benchmark</h2>
@@ -425,7 +425,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb18-25" title="25"><span class="kw">mat_filling</span>(all_mats<span class="op">$</span><span class="st">`</span><span class="dt">0</span><span class="st">`</span><span class="op">$</span>mat)</a></code></pre></div>
 <pre><code>## [1] 1</code></pre>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">mat_filling</span>(all_mats<span class="op">$</span><span class="st">`</span><span class="dt">99</span><span class="st">`</span><span class="op">$</span>mat)</a></code></pre></div>
-<pre><code>## [1] 0.009905</code></pre>
+<pre><code>## [1] 0.009705</code></pre>
 <p>Now we can compare the speed of the algorithms:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="cf">if</span> (<span class="kw">requireNamespace</span>(<span class="st">&quot;microbenchmark&quot;</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>)) {</a>
 <a class="sourceLine" id="cb22-2" title="2">  mat_bench =<span class="st"> </span>microbenchmark<span class="op">::</span><span class="kw">microbenchmark</span>(</a>

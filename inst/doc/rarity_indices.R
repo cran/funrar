@@ -99,7 +99,6 @@ identical(all_ind$Si, si)
 
 ## -----------------------------------------------------------------------------
 library(ggplot2)
-library(dplyr)
 
 # Heatmap with distinctiveness values
 ggplot(di_df, aes(species, site)) +
@@ -112,7 +111,7 @@ quant = quantile(di_df$Di, probs = seq(0, 1, 0.10))
 labels_quant = paste(names(quant)[-length(quant)], names(quant)[-1], sep = "-")
  
 di_density = data.frame(density(di_df$Di)[c("x", "y")])
-di_density = filter(di_density, x >= quant[[1]] & x <= quant[[length(quant)]])
+di_density = subset(di_density, x >= quant[[1]] & x <= quant[[length(quant)]])
 di_density$quant = cut(di_density$x, breaks = quant)   
 quant = quantile(di_df$Di, probs = seq(0, 1, 0.10))
 labels_quant = paste(names(quant)[-length(quant)], names(quant)[-1], sep = "-")
@@ -135,7 +134,7 @@ quant = quantile(si_df$Si, probs = seq(0, 1, 0.10))
 labels_quant = paste(names(quant)[-length(quant)], names(quant)[-1], sep = "-")
  
 si_density = data.frame(density(si_df$Si)[c("x", "y")])
-si_density = filter(si_density, x >= quant[[1]] & x <= quant[[length(quant)]])
+si_density = subset(si_density, x >= quant[[1]] & x <= quant[[length(quant)]])
 si_density$quant = cut(si_density$x, breaks = quant)   
 quant = quantile(si_df$Si, probs = seq(0, 1, 0.10))
 labels_quant = paste(names(quant)[-length(quant)], names(quant)[-1], sep = "-")
@@ -154,7 +153,7 @@ si_dens
 
 # Regional rarity: restrictedness versus uniqueness
 colnames(ri_df)[colnames(ri_df) == "sp"] = "species"
-ri_ui <- inner_join(ri_df, ui_df, by = "species")
+ri_ui <- merge(ri_df, ui_df, by = "species")
 
 ggplot(ri_ui, aes(Ri, Ui)) +
   geom_point() + 
