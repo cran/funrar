@@ -8,7 +8,7 @@ bibentry(
               person("Caroline M. Tucker"), person("François Munoz"),
               person("Cyrille Violle")),
   year    = "2017",
-  url     = "http://onlinelibrary.wiley.com/doi/10.1111/ddi.12629/abstract",
+  url     = "https://onlinelibrary.wiley.com/doi/10.1111/ddi.12629",
   doi     = "10.1111/ddi.12629")
 
 bibentry(
@@ -18,6 +18,6 @@ bibentry(
               person("Caroline M. Tucker"), person("François Munoz"),
               person("Cyrille Violle")),
   year    = "2017",
-  note    = "R package version 1.2.1",
+  note    = "R package version 1.5.0",
   url     = "https://cran.r-project.org/package=funrar"
 )

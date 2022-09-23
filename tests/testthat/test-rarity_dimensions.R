@@ -1,6 +1,5 @@
 library("Matrix")
-context("Measuring Functional Rarity Dimensions")
-
+# Measuring Functional Rarity Dimensions
 # Common Objects ---------------------------------------------------------------
 given_traits = data.frame(tr1     = 1:3,
                           tr2     = c(1, 1, 0),
@@ -17,7 +16,7 @@ pres_mat[3, 3] = 1
 
 dimnames(pres_mat) = list(sites = paste0("s", 1:3), species = letters[1:3])
 
-sparse_mat = as(pres_mat, "sparseMatrix")
+sparse_mat = as(pres_mat, "dgCMatrix")
 
 # Tests ------------------------------------------------------------------------
 test_that("'uniqueness_dimensions()' outputs good objects", {
@@ -35,11 +34,11 @@ test_that("'distinctiveness_dimensions()' outputs good objects", {
 
   # General check
   expect_type(di_dim, "list")
-  expect_named(di_dim, c(paste0("Di_", trait_names), "Di_all"))
+  expect_named(di_dim, c(paste0("di_", trait_names), "di_all"))
 
   # Check that all elements are matrices
   lapply(di_dim, function(x) {
-    expect_is(x, "matrix")
+    expect_true(inherits(x, "matrix"))
   })
 
   # Check that all elements have good dimension
@@ -78,10 +77,11 @@ test_that("'distinctiveness_dimensions()' outputs good objects", {
 })
 
 test_that("'uniqueness_dimensions()' works with sparse matrices", {
-  expect_warning(uniqueness_dimensions(sparse_mat, given_traits),
-                 paste0("Only numeric traits provided, consider using ",
-                        "euclidean distance."),
-                 fixed = TRUE)
+  expect_message(
+    uniqueness_dimensions(sparse_mat, given_traits),
+    "Only numeric traits provided, consider using euclidean distance.",
+    fixed = TRUE
+  )
 
   sparse_ui_dim = uniqueness_dimensions(sparse_mat, given_traits,
                                         metric = "euclidean")
@@ -98,7 +98,7 @@ test_that("'distinctiveness_dimensions()' works with sparse matrices", {
 
   # General checks
   expect_type(sparse_di_dim, "list")
-  expect_named(sparse_di_dim, c(paste0("Di_", trait_names), "Di_all"))
+  expect_named(sparse_di_dim, c(paste0("di_", trait_names), "di_all"))
 
   # Check that all elements are matrices
   expect_true(all(vapply(sparse_di_dim, class, "char") == "dgeMatrix"))
@@ -115,7 +115,7 @@ test_that("'distinctiveness_dimensions()' works with sparse matrices", {
   )
 
   # Check that all elements are well named
-  sp_all_colnames = lapply(sparse_di_dim, colnames) # Get dimensions of each element
+  sp_all_colnames = lapply(sparse_di_dim, colnames) # Get dimensions of elements
   expect_true(# Is it the same as input matrix?
     all(
       as.logical(
@@ -154,7 +154,7 @@ test_that("'*_dimensions()' functions outputs the right computations", {
 
   expected_single_di = matrix(1, ncol = 2, nrow = 2)
   dimnames(expected_single_di) = dimnames(simple_mat)
-  expected_di = list(Di_tr1 = expected_single_di, Di_all = expected_single_di)
+  expected_di = list(di_tr1 = expected_single_di, di_all = expected_single_di)
 
   expect_identical(simple_ui_dim, expected_ui)
   expect_identical(simple_di_dim, expected_di)

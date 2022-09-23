@@ -28,6 +28,19 @@
 #' tests on inputs and may fail unexpectedly. Please use [scarcity_stack()] to
 #' avoid input errors.
 #'
+#' @examples
+#' data("aravo", package = "ade4")
+#'
+#' # Site-species matrix converted into data.frame
+#' mat = as.matrix(aravo$spe)
+#' mat = make_relative(mat)
+#' dat = matrix_to_stack(mat, "value", "site", "species")
+#' dat$site = as.character(dat$site)
+#' dat$species = as.character(dat$species)
+#'
+#' si_df = scarcity_com(subset(dat, site == "AR07"), "species", "value")
+#' head(si_df)
+#'
 #' @seealso [scarcity()] and `vignette("rarity_indices", package = "funrar")`
 #' for details on the scarcity metric; [distinctiveness_com()] to compute
 #' distinctiveness on a single community
@@ -36,14 +49,14 @@
 scarcity_com = function(com_df, sp_col, abund) {
 
   # Computes scarcity by species
-  N_sp = length(com_df[[sp_col]])
+  n_sp = length(com_df[[sp_col]])
 
-  com_df[, "Si"] = exp(-N_sp * log(2) * com_df[[abund]])
+  com_df[, "Si"] = exp(-n_sp * log(2) * com_df[[abund]])
 
   return(com_df)
 }
 
-#' Scarcity
+#' Scarcity on a stacked data.frame
 #'
 #' Compute scarcity values for several communities. Scarcity computation
 #' requires relative abundances. Scarcity is close to 1 when a species is rare
@@ -86,14 +99,17 @@ scarcity_stack = function(com_df, sp_col, com, abund) {
   if (is.null(abund)) {
     stop("No relative abundance provided")
   }
+  if (!all(com_df[[abund]] >= 0 & com_df[[abund]] <= 1)) {
+    stop("Abundance are not relative, Scarcity can't be computed")
+  }
 
   # Compute Scarcity
   # Split table by communities
   com_split = split(com_df, factor(com_df[[com]]))
 
-  com_split = lapply(com_split,
-                      function(one_com)
-                        scarcity_com(one_com, sp_col, abund)
+  com_split = lapply(
+    com_split,
+    function(one_com) scarcity_com(one_com, sp_col, abund)
   )
 
   com_scarcity = do.call(rbind.data.frame, c(com_split, make.row.names = FALSE,

@@ -1,9 +1,10 @@
-#' Other Functional Distinctiveness within range
+#' Truncated Functional Distinctiveness
 #'
 #' Computes functional distinctiveness from a site-species matrix (containing
 #' presence-absence or relative abundances) of species with provided functional
-#' distance matrix **considering only species within a given range in the
-#' functional space**. The sites-species matrix should have **sites** in
+#' distance matrix considering only species **within a given range** in the
+#' functional space. Basically species are cutoff when their dissimilarity is
+#' above the input threshold. The sites-species matrix should have **sites** in
 #' **rows** and **species** in **columns**, similar to
 #' \pkg{vegan} package defaults.
 #'
@@ -24,7 +25,7 @@
 #'    as `NaN`.
 #'
 #'    For speed and memory efficiency sparse matrices can be used as input of
-#'    the function using `as(pres_matrix, "sparseMatrix")` from the
+#'    the function using `as(pres_matrix, "dgCMatrix")` from the
 #'    `Matrix` package.
 #'    (see `vignette("sparse_matrices", package = "funrar")`)
 #'
@@ -62,7 +63,7 @@ distinctiveness_alt = function(pres_matrix, dist_matrix, given_range) {
   full_matrix_checks(pres_matrix, dist_matrix)
 
   # Test provided range
-  if (!is.numeric(given_range) | is.na(given_range)) {
+  if (!is.numeric(given_range) || is.na(given_range)) {
     stop("'given_range' argument should be non-null and numeric")
   }
 
@@ -71,13 +72,7 @@ distinctiveness_alt = function(pres_matrix, dist_matrix, given_range) {
   pres_matrix = pres_matrix[, common, drop = FALSE]
   dist_matrix = dist_matrix[common, common]
 
-  if (!is_relative(pres_matrix)) {
-    warning("Provided object may not contain relative abundances nor ",
-            "presence-absence\n",
-            "Have a look at the make_relative() function if it is the case")
-  }
-
-  # Correspondance matrix (1 if outside given range, 0 otherwise)
+  # Correspondence matrix (1 if outside given range, 0 otherwise)
   corr_matrix = dist_matrix
   corr_matrix[dist_matrix >= given_range] = 1
   corr_matrix[dist_matrix < given_range] = 0
@@ -89,19 +84,11 @@ distinctiveness_alt = function(pres_matrix, dist_matrix, given_range) {
                                                       given_range)))
 
 
-  # Compute sum of relative abundances
-  if (requireNamespace("Matrix", quietly = TRUE) &
-      is(pres_matrix, "sparseMatrix")) {
-    # Replace species not present in communities
-    index_matrix[Matrix::which(pres_matrix == 0)] = NA
-    total_sites = Matrix::rowSums(pres_matrix)
+  ## Compute sum of relative abundances
+  # Replace species not present in communities
+  index_matrix[which(pres_matrix == 0)] = NA
+  total_sites = rowSums(pres_matrix)
 
-  } else {
-
-    # Replace species not present in communities
-    index_matrix[which(pres_matrix == 0)] = NA
-    total_sites = rowSums(pres_matrix)
-  }
 
   # Consider denominator (sum of relative abundance or richness - 1)
   denom_matrix = apply(pres_matrix, 2, function(x) total_sites - x)

@@ -1,5 +1,4 @@
-context("Test Uniqueness")
-
+# Test Functional Uniqueness Computation
 # Valid Presence-Absence Matrix
 valid_mat = matrix(c(1, 0, 0, 0,
                      rep(1, 3), 0,
@@ -63,8 +62,8 @@ test_that("Correct Uniqueness computation", {
   all_ui = data.frame(species = letters[1:4],
                       Ui = c(1/9, 1/9, 4/9, 4/9))
 
-  expect_equivalent(uniqueness_stack(com_df[1:2, ], "species", dist_mat),
-                    valid_ui)
+  expect_equal(uniqueness_stack(com_df[1:2, ], "species", dist_mat),
+               valid_ui)
 
   expect_error(uniqueness_stack(com_df[1:2, ], "NOT_IN_TABLE", dist_mat),
                regexp = "'NOT_IN_TABLE' column not in provided data.frame")
@@ -74,7 +73,7 @@ test_that("Correct Uniqueness computation", {
     regexp = "^More species in community data.frame than in distance matrix.*"
   )
 
-  expect_equivalent(uniqueness_stack(com_df, "species", dist_mat), all_ui)
+  expect_equal(uniqueness_stack(com_df, "species", dist_mat), all_ui)
 
   expect_equal(uniqueness(valid_mat, dist_mat), all_ui)
 })

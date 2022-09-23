@@ -1,4 +1,4 @@
-#' Uniqueness dimensions
+#' Uniqueness across combinations of traits
 #'
 #' From a trait table and a site-species matrix compute Uniqueness
 #' (nearest functional distance) for each species and each trait, plus computes
@@ -36,23 +36,23 @@ uniqueness_dimensions = function(pres_matrix, traits_table, ...) {
   # Compute uniqueness data frame for all computed distance matrices
   functional_uniqueness = lapply(
     names(dist_matrices), function(x, matrices = dist_matrices) {
-      Ui = uniqueness(pres_matrix, matrices[[x]])
+      ui = uniqueness(pres_matrix, matrices[[x]])
 
       # Rename Ui column with trait name
-      Ui_name = paste0("Ui_", x)
-      colnames(Ui)[2] = Ui_name
+      ui_name = paste0("Ui_", x)
+      colnames(ui)[2] = ui_name
 
-      return(Ui)
+      return(ui)
     })
 
   # Join all data.frames for Uniqueness
-  Ui = Reduce(function(x, y) merge(x, y, by = "species"),
+  ui = Reduce(function(x, y) merge(x, y, by = "species"),
               functional_uniqueness)
 
-  return(Ui)
+  return(ui)
 }
 
-#' Distinctiveness dimensions
+#' Distinctiveness across combinations of traits
 #'
 #' From a trait data.frame and a site-species matrix compute Distinctiveness
 #' (average pairwise functional distance) for each species in each community
@@ -85,31 +85,30 @@ uniqueness_dimensions = function(pres_matrix, traits_table, ...) {
 distinctiveness_dimensions = function(pres_matrix, traits_table, ...) {
   dist_matrices = combination_trait_dist(traits_table, ...)
 
-  Di_list = lapply(
+  di_list = lapply(
     names(dist_matrices), function(x, matrices = dist_matrices) {
-      Di = distinctiveness(pres_matrix, matrices[[x]])
+      di = distinctiveness(pres_matrix, matrices[[x]])
 
-      return(Di)
+      return(di)
     })
 
-  names(Di_list) = paste0("Di_", names(dist_matrices))
+  names(di_list) = paste0("di_", names(dist_matrices))
 
-  return(Di_list)
+  return(di_list)
 }
 
 
-#' Multiple distance matrices
+#' Compute Multiple distance matrices from a single trait table
 #'
 #' Internal function to compute combinations of distance matrices from a
 #' data.frame of traits, using [compute_dist_matrix()].
-#'
-#' @return A list of functional distance matrices, one for each provided trait
-#'         plus an additional matrix for all traits taken altogether
 #'
 #' @inheritParams compute_dist_matrix
 #'
 #' @param ... additional arguments supplied to [compute_dist_matrix()]
 #'
+#' @return A list of functional distance matrices, one for each provided trait
+#'         plus an additional matrix for all traits taken altogether
 combination_trait_dist = function(traits_table, ...) {
   # Other arguments to compute distance matrix
   dots = list(...)
@@ -120,9 +119,9 @@ combination_trait_dist = function(traits_table, ...) {
     function(x, trait = traits_table, other_args = dots) {
 
       # Call 'compute_dist_matrix()' with supplementary arguments
-      do.call("compute_dist_matrix",
-              c(list(traits_table = traits_table[, x, drop = FALSE]),
-                other_args)
+      do.call(
+        "compute_dist_matrix",
+        c(list(traits_table = traits_table[, x, drop = FALSE]), other_args)
       )
     })
 

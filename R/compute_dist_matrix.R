@@ -1,4 +1,4 @@
-#' Functional Distance Matrix
+#' Compute a Functional Dissimilarity Matrix
 #'
 #' Wrapper for [cluster::daisy()] function in `cluster` package,
 #' to compute distance matrix of trait between each pair of species present in
@@ -26,13 +26,13 @@
 #'
 #'
 #' @details The functional distance matrix can be computed using any type of
-#'     distance metric. When traits are both quantitative and qualitative Gower's
-#'     (Gower, 1971; Podani, 1999) distance can be used. Otherwise, any other
-#'     distance metric (Euclidean, Manhattan, Minkowski) can be used - as long
-#'     as the rows and the columns are named following the species. When using
-#'     mixed data consider also Gower's distance extension by Pavoine et al.
-#'     (2009). **IMPORTANT NOTE**: in order to get functional rarity indices
-#'     between 0 and 1, the distance metric has to be scaled between 0 and 1.
+#'   distance metric. When traits are both quantitative and qualitative Gower's
+#'   (Gower, 1971; Podani, 1999) distance can be used. Otherwise, any other
+#'   distance metric (Euclidean, Manhattan, Minkowski) can be used - as long
+#'   as the rows and the columns are named following the species. When using
+#'   mixed data consider also Gower's distance extension by Pavoine et al.
+#'   (2009). **IMPORTANT NOTE**: in order to get functional rarity indices
+#'   between 0 and 1, the distance metric has to be scaled between 0 and 1.
 #'
 #' @references
 #'     Gower, J.C. (1971) A general coefficient of similarity and some of its
@@ -66,7 +66,7 @@
 compute_dist_matrix = function(traits_table, metric = "gower", center = FALSE,
                                scale = FALSE) {
 
-  if (is.null(rownames(traits_table)) |
+  if (is.null(rownames(traits_table)) ||
       identical(rownames(traits_table), as.character(seq_len(
         nrow(traits_table))))) {
     warning("No row names provided in trait table\n",
@@ -84,11 +84,11 @@ compute_dist_matrix = function(traits_table, metric = "gower", center = FALSE,
   } else if (metric != "euclidean") {
 
     if (all(vapply(traits_table, is.numeric, TRUE))) {
-      warning("Only numeric traits provided, consider using euclidean ",
+      message("Only numeric traits provided, consider using euclidean ",
               "distance.")
     }
 
-    if (center | scale) {
+    if (center || scale) {
       stop("'", metric, "' distance cannot be scaled nor centered")
     }
   }

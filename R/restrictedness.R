@@ -65,7 +65,7 @@ restrictedness_stack = function(com_df, sp_col, com, relative = FALSE) {
   if (!relative) {
     r_one = 1
   } else {
-    r_one = 1 - 1/n_com
+    r_one = 1 - 1 / n_com
   }
 
   occupancy$Ri = occupancy$Ri / r_one
@@ -135,9 +135,9 @@ restrictedness_tidy = restrictedness_stack
 #' }{
 #'  R_i = (K_tot - K_i)(K_tot - 1)
 #' }
-#' Other approaches can be used to measure the geographical extent (convex hulls,
-#' occupancy models, etc.) but for the sake of simplicity only the counting
-#' method is implemented in \pkg{funrar}.
+#' Other approaches can be used to measure the geographical extent
+#' (convex hulls, occupancy models, etc.) but for the sake of simplicity only
+#' the counting method is implemented in \pkg{funrar}.
 #'
 #' @examples
 #' data("aravo", package = "ade4")
@@ -155,24 +155,17 @@ restrictedness = function(pres_matrix, relative = FALSE) {
   # get the total number of communities
   n_com = nrow(pres_matrix)
 
-  if (is.matrix(pres_matrix)) {
-    # Convert all the matrix values into 0/1
-    pres_matrix[is.na(pres_matrix) == TRUE] = 0
-    pres_matrix[pres_matrix > 0] = 1
+  # Convert all the matrix values into 0/1
+  pres_matrix[which(is.na(pres_matrix))] = 0
+  pres_matrix[which(pres_matrix > 0)] = 1
 
-    # Compute the sum of all species' occurrences divided by n_com
-    occupancy = 1 - (colSums(pres_matrix, na.rm = TRUE) / n_com)
-  } else if (is(pres_matrix, "sparseMatrix")) {
-    # Convert all the matrix values into 0/1
-    pres_matrix[Matrix::which(is.na(pres_matrix))] = 0
-    pres_matrix[Matrix::which(pres_matrix > 0)] = 1
+  # Compute the sum of all species' occurrences divided by n_com
+  occupancy = 1 - (colSums(pres_matrix, na.rm = TRUE) / n_com)
 
-    occupancy = 1 - (Matrix::colSums(pres_matrix, na.rm = TRUE) / n_com)
-  }
   if (!relative) {
     r_one = 1
   } else {
-    r_one = 1 - 1/n_com
+    r_one = 1 - 1 / n_com
   }
 
   # Format occupancy in data.frame

@@ -25,7 +25,7 @@
 distinctiveness_global = function(dist_obj, di_name = "global_di") {
 
   # Incorrect input
-  if ((!is(dist_obj, "dist") && !is.matrix(dist_obj)) |
+  if ((!is(dist_obj, "dist") && !is.matrix(dist_obj)) ||
       (is.matrix(dist_obj) && ncol(dist_obj) != nrow(dist_obj))) {
     stop("Input should be a dist() object or a square matrix", call. = FALSE)
   }
@@ -38,6 +38,13 @@ distinctiveness_global = function(dist_obj, di_name = "global_di") {
   # Always go back to a distance matrix
   if (is(dist_obj, "dist")) {
     dist_obj = as.matrix(dist_obj)
+  }
+
+  if (any(is.na(dist_obj))) {
+    stop(
+      "The input distance object contains NA(s), ",
+      "cannot compute distinctiveness", call. = FALSE
+    )
   }
 
   # Define global pool of species based on distance matrix

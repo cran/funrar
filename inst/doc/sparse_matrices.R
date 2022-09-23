@@ -2,8 +2,8 @@
 # Generate a matrix with 1000 species and 200 sites
 my_mat = matrix(sample(c(0, 0, 0, 0, 0, 0, 1), replace = TRUE, size = 200000),
                 ncol = 1000, nrow = 200)
-colnames(my_mat) = paste0("sp", 1:ncol(my_mat))
-rownames(my_mat) = paste0("site", 1:nrow(my_mat))
+colnames(my_mat) = paste0("sp", seq_len(ncol(my_mat)))
+rownames(my_mat) = paste0("site", seq_len(nrow(my_mat)))
 
 my_mat[1:5, 1:5]
 
@@ -15,10 +15,10 @@ filling
 ## ----convertSparseMat---------------------------------------------------------
 library(Matrix)
 
-sparse_mat = as(my_mat, "sparseMatrix")
+sparse_mat = as(my_mat, "dgCMatrix")
 
-is(my_mat, "sparseMatrix")
-is(sparse_mat, "sparseMatrix")
+is(my_mat, "dgCMatrix")
+is(sparse_mat, "dgCMatrix")
 
 ## ----memoryUsage--------------------------------------------------------------
 # Regular Matrix
@@ -34,7 +34,7 @@ print(object.size(sparse_mat), units = "Kb")
 #  
 #  # Get a table of traits
 #  trait_df = data.frame(trait = runif(ncol(my_mat), 0, 1))
-#  rownames(trait_df) = paste0("sp", 1:ncol(my_mat))
+#  rownames(trait_df) = paste0("sp", seq_len(ncol(my_mat)))
 #  
 #  # Compute distance matrix
 #  dist_mat = compute_dist_matrix(trait_df)
@@ -57,10 +57,10 @@ mat_filling = function(my_mat) {
 
 sparse_and_mat = function(n_zero) {
   my_mat = generate_matrix(n_zero)
-  colnames(my_mat) = paste0("sp", 1:ncol(my_mat))
-  rownames(my_mat) = paste0("site", 1:nrow(my_mat))
+  colnames(my_mat) = paste0("sp", seq_len(ncol(my_mat)))
+  rownames(my_mat) = paste0("site", seq_len(nrow(my_mat)))
   
-  sparse_mat = as(my_mat, "sparseMatrix")
+  sparse_mat = as(my_mat, "dgCMatrix")
   
   return(list(mat = my_mat, sparse = sparse_mat))
 }

@@ -1,4 +1,4 @@
-context("Test Restrictedness")
+# Test Computation of Restrictedness
 
 # Data -------------------------------------------------------------------------
 valid_mat = matrix(c(1, 0, 0, 0,
@@ -42,12 +42,12 @@ test_that("Restrictedness computations work", {
 
 test_that("Restrictedness works with sparse matrices", {
   library(Matrix)
-  sparse_mat = as(valid_mat, "sparseMatrix")
+  sparse_mat = as(valid_mat, "dgCMatrix")
 
   expect_silent(restrictedness(sparse_mat))
 
-  expect_equivalent(restrictedness(sparse_mat),
-                    data.frame("species" = letters[1:4],
-                               "Ri" = c(3/4, 1/4, 1/4, 1/2)))
+  expect_equal(restrictedness(sparse_mat),
+               data.frame("species" = letters[1:4],
+                          "Ri" = c(3/4, 1/4, 1/4, 1/2)))
 })
 

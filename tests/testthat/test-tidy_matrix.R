@@ -1,6 +1,4 @@
-context("Tidy Data Frame to Matrix Transformation")
-
-
+# Test Tidy Data Frame to Matrix Transformation
 # Needed objects --------------------------------------------------------------
 
 # Valid Presence-Absence Matrix
@@ -62,9 +60,11 @@ na_mat["d", "s4"] = NA
 
 test_that("Conversion from tidy data.frame to matrix works", {
 
-  expect_equivalent(stack_to_matrix(com_df, "species", "site"), valid_mat)
-  expect_equivalent(stack_to_matrix(abund_df, "species", "site", "val"),
-                    abund_mat)
+  expect_equal(
+    unname(stack_to_matrix(com_df, "species", "site")), unname(valid_mat)
+  )
+  expect_equal(stack_to_matrix(abund_df, "species", "site", "val"),
+               abund_mat)
 
   expect_error(stack_to_matrix(com_df, "speies", "site"),
                label = "Column 'speies' is not in data.frame")
@@ -77,51 +77,51 @@ test_that("Conversion from tidy data.frame to matrix works", {
 
 test_that("Conversion from matrix to tidy data.frame works", {
 
-  expect_equivalent(matrix_to_stack(valid_mat, row_to_col = "species",
-                                   col_to_col = "site")[, -3], com_df)
+  expect_equal(matrix_to_stack(valid_mat, row_to_col = "species",
+                               col_to_col = "site")[, -3], com_df)
 
-  expect_equivalent(matrix_to_stack(abund_mat, value_col = "val"), abund_df)
+  expect_equal(matrix_to_stack(abund_mat, value_col = "val"), abund_df)
 
   expect_equal(colnames(matrix_to_stack(valid_mat, row_to_col = NULL,
-                              col_to_col = "site"))[2], "row")
+                                        col_to_col = "site"))[2], "row")
 
   expect_equal(colnames(matrix_to_stack(valid_mat, row_to_col = "species",
-                              col_to_col = NULL))[1], "col")
+                                        col_to_col = NULL))[1], "col")
 })
 
 test_that("Conversion from sparse & dense matrices to tidy data.frame", {
   library(Matrix)
 
-  valid_sparse = as(valid_mat, "sparseMatrix")
+  valid_sparse = as(valid_mat, "dgCMatrix")
   valid_dens   = as(valid_mat, "Matrix")
 
-  abund_sparse = as(abund_mat, "sparseMatrix")
+  abund_sparse = as(abund_mat, "dgCMatrix")
   abund_dens   = as(abund_mat, "Matrix")
 
   # Test for sparse matrices
-  expect_equivalent(matrix_to_stack(valid_sparse, row_to_col = "species",
-                                    col_to_col = "site")[, -3], com_df)
+  expect_equal(matrix_to_stack(valid_sparse, row_to_col = "species",
+                               col_to_col = "site")[, -3], com_df)
 
-  expect_equivalent(matrix_to_stack(abund_sparse, value_col = "val"), abund_df)
+  expect_equal(matrix_to_stack(abund_sparse, value_col = "val"), abund_df)
 
   expect_equal(colnames(matrix_to_stack(valid_sparse, row_to_col = NULL,
-                               col_to_col = "site"))[2], "row")
+                                        col_to_col = "site"))[2], "row")
 
   expect_equal(colnames(matrix_to_stack(valid_sparse, row_to_col = "species",
-                               col_to_col = NULL))[1], "col")
+                                        col_to_col = NULL))[1], "col")
 
 
   # Test for dense matrices
-  expect_equivalent(matrix_to_stack(valid_dens, row_to_col = "species",
-                                    col_to_col = "site")[, -3], com_df)
+  expect_equal(matrix_to_stack(valid_dens, row_to_col = "species",
+                               col_to_col = "site")[, -3], com_df)
 
-  expect_equivalent(matrix_to_stack(abund_dens, value_col = "val"), abund_df)
+  expect_equal(matrix_to_stack(abund_dens, value_col = "val"), abund_df)
 
   expect_equal(colnames(matrix_to_stack(valid_dens, row_to_col = NULL,
-                               col_to_col = "site"))[2], "row")
+                                        col_to_col = "site"))[2], "row")
 
   expect_equal(colnames(matrix_to_stack(valid_dens, row_to_col = "species",
-                               col_to_col = NULL))[1], "col")
+                                        col_to_col = NULL))[1], "col")
 })
 
 test_that("Conversion from tidy data.frame to sparse & dense matrices", {
@@ -132,12 +132,14 @@ test_that("Conversion from tidy data.frame to sparse & dense matrices", {
   valid_zero = valid_mat
   valid_zero[is.na(valid_zero)] = 0
   # Target matrices
-  valid_sparse = as(valid_zero, "sparseMatrix")
+  valid_sparse = as(valid_zero, "dgCMatrix")
   names(dimnames(valid_sparse)) = c("species", "site")
 
   if (!requireNamespace("tidytext", quietly = TRUE)) {
-    expect_error(stack_to_matrix(com_df, "species", "site", sparse = TRUE),
-                 "The tidytext package need to be installed to get a sparse matrix")
+    expect_error(
+      stack_to_matrix(com_df, "species", "site", sparse = TRUE),
+      "The tidytext package need to be installed to get a sparse matrix"
+    )
   }
 
   expect_equal(stack_to_matrix(com_df, "species", "site", sparse = TRUE),
@@ -149,7 +151,7 @@ test_that("Conversion from tidy data.frame to sparse & dense matrices", {
   abund_zero = abund_mat
   abund_zero[is.na(abund_zero)] = 0
   # Target matrices
-  abund_sparse = as(abund_zero, "sparseMatrix")
+  abund_sparse = as(abund_zero, "dgCMatrix")
   names(dimnames(abund_sparse)) = c("species", "site")
 
 

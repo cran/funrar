@@ -1,11 +1,15 @@
 #' Relative abundance matrix from absolute abundance matrix
 #'
-#' From an abundance matrix (numbers of individuals of a given species at a site)
-#' returns a relative abundance matrix (proportion of individuals of a given species
-#' at a given site). This function works also with sparse matrices.
+#' From an abundance matrix (numbers of individuals of a given species at a
+#' site) returns a relative abundance matrix (proportion of individuals of a
+#' given species at a given site). This function works also
+#' with sparse matrices.
 #'
 #' @param abund_matrix abundance matrix, with sites in rows and species in
 #'                     columns.
+#'
+#' @return Similar shaped matrix as the input but with relative abundances
+#'   instead
 #'
 #' @examples
 #' data("aravo", package = "ade4")
@@ -23,7 +27,7 @@ make_relative = function(abund_matrix) {
   check_matrix(abund_matrix, "abundance")
 
   # Compute relative abundances matrix
-  if (requireNamespace("Matrix", quietly = TRUE) &
+  if (requireNamespace("Matrix", quietly = TRUE) &&
       is(abund_matrix, "sparseMatrix")) {
 
     sites_abund = Matrix::rowSums(abund_matrix, na.rm = TRUE)
@@ -51,7 +55,7 @@ make_relative = function(abund_matrix) {
 #'
 #' @param abund name of the column of the provided object that contains the
 #'              abundances
-#'
+#' @return `TRUE` if the input has relative abundances `FALSE` otherwise
 #' @seealso [make_relative()] to transform matrix into a relative abundance
 #'          matrix.
 #'
@@ -73,16 +77,18 @@ is_relative = function(given_obj, abund = NULL) {
 
   is_rel = FALSE
 
-  if (is.matrix(given_obj) | is(given_obj, "sparseMatrix")) {
+  if (is.matrix(given_obj) || is(given_obj, "sparseMatrix")) {
     values = na.omit(unique(as.vector(given_obj)))
-  } else if (is.data.frame(given_obj) & !is.null(abund) & is.character(abund)) {
+  } else if (
+    is.data.frame(given_obj) && !is.null(abund) && is.character(abund)
+  ) {
     values = na.omit(unique(given_obj[[abund]]))
   }
 
   max_val = max(values)
   min_val = min(values)
 
-  if (max_val <= 1 & min_val >= 0) {
+  if (max_val <= 1 && min_val >= 0) {
     is_rel = TRUE
   }
 

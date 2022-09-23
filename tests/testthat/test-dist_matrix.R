@@ -1,5 +1,4 @@
-context("Compute Functional Distance Matrix")
-
+# Compute Functional Distance Matrix
 test_that("Returned object is a matrix", {
 
   trait_df = data.frame(trait1 = 1:5,
@@ -8,7 +7,7 @@ test_that("Returned object is a matrix", {
   rownames(trait_df) = letters[1:5]
 
   # Object is matrix
-  expect_is(compute_dist_matrix(trait_df), "matrix")
+  expect_true(inherits(compute_dist_matrix(trait_df), "matrix"))
 })
 
 
@@ -19,7 +18,7 @@ test_that("Names in distance matrix named after rownames", {
 
 
   # No rownames
-  expect_warning(compute_dist_matrix(trait[,2:3]),
+  expect_warning(compute_dist_matrix(trait[, 2:3]),
                  regexp = paste0(
                    "No row names provided in trait table", "\n",
                    "Distinctiveness and scarcity won't be computable"))
@@ -45,7 +44,7 @@ test_that("Distance matrix contains good values", {
 
   rownames(trait) = trait$sp
 
-  t_dist_mat = compute_dist_matrix(trait[,2:3])
+  t_dist_mat = compute_dist_matrix(trait[, 2:3])
 
   other_mat = as.data.frame(matrix(1:16, nrow = 4))
   rownames(other_mat) = paste0("sp", 1:4)
@@ -53,16 +52,17 @@ test_that("Distance matrix contains good values", {
   dist_mat = suppressWarnings(compute_dist_matrix(other_mat))
 
   # Null diagonal
-  expect_equivalent(diag(dist_mat), rep(0, 4))
-  expect_equivalent(diag(t_dist_mat), rep(0, 5))
+  expect_equal(diag(dist_mat), rep(0, 4), ignore_attr = TRUE)
+  expect_equal(diag(t_dist_mat), rep(0, 5), ignore_attr = TRUE)
 
+  exp_dist_mat <- matrix(c(0, 1/3, 2/3, 1,
+                           1/3, 0, 1/3, 2/3,
+                           2/3, 1/3, 0, 1/3,
+                           1, 2/3, 1/3, 0),
+                         nrow = 4)
   # Expected values
-  expect_equivalent(dist_mat,
-                    matrix(c(0, 1/3, 2/3, 1,
-                             1/3, 0, 1/3, 2/3,
-                             2/3, 1/3, 0, 1/3,
-                             1, 2/3, 1/3, 0),
-                           nrow = 4))
+  expect_equal(unname(dist_mat), exp_dist_mat)
+
 })
 
 test_that("Different distances method give consistent results", {
@@ -81,7 +81,9 @@ test_that("Different distances method give consistent results", {
 
 
   # Manhattan
-  man_mat = suppressWarnings(compute_dist_matrix(trait_df, metric = "manhattan"))
+  man_mat = suppressWarnings(
+    compute_dist_matrix(trait_df, metric = "manhattan")
+  )
 
   man_dist = dist(trait_df, method = "manhattan")
 
@@ -110,17 +112,17 @@ test_that("Scaling works with continuous traits", {
   center_dist       = as.matrix(dist(scale(trait_df, TRUE, FALSE)))
   scale_dist        = as.matrix(dist(scale(trait_df, FALSE, TRUE)))
 
-  expect_equivalent(compute_dist_matrix(trait_df, center = TRUE, scale = TRUE,
-                                        metric = "euclidean"),
-                    center_scale_dist)
+  expect_equal(compute_dist_matrix(trait_df, center = TRUE, scale = TRUE,
+                                   metric = "euclidean"),
+               center_scale_dist)
 
-  expect_equivalent(compute_dist_matrix(trait_df, center = TRUE, scale = FALSE,
-                                        metric = "euclidean"),
-                    center_dist)
+  expect_equal(compute_dist_matrix(trait_df, center = TRUE, scale = FALSE,
+                                   metric = "euclidean"),
+               center_dist)
 
-  expect_equivalent(compute_dist_matrix(trait_df, center = TRUE, scale = TRUE,
-                                        metric = "euclidean"),
-                    center_scale_dist)
+  expect_equal(compute_dist_matrix(trait_df, center = TRUE, scale = TRUE,
+                                   metric = "euclidean"),
+               center_scale_dist)
 
   trait_df2 = trait_df
   trait_df2$trait3 = letters[1:4]

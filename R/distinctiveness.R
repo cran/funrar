@@ -43,7 +43,7 @@ distinctiveness_com = function(com_df, sp_col, abund = NULL, dist_matrix,
 
 
   # Test relative argument
-  if (!is.logical(relative) | is.na(relative) | length(relative) != 1) {
+  if (!is.logical(relative) || is.na(relative) || length(relative) != 1) {
     stop("'relative' argument should be either TRUE or FALSE")
   }
 
@@ -83,7 +83,7 @@ distinctiveness_com = function(com_df, sp_col, abund = NULL, dist_matrix,
   # Computes distinctiveness by species
   if (length(denom) > 1) {
     com_df[, "Di"] = as.numeric(num / denom) / max_dist
-  } else if (length(denom) == 1 & denom != 0) {
+  } else if (length(denom) == 1 && denom != 0) {
     com_df[, "Di"] = as.numeric(num / denom) / max_dist
   } else {
     com_df[, "Di"] = NaN
@@ -151,12 +151,7 @@ distinctiveness_stack = function(com_df, sp_col, com, abund = NULL,
   full_df_checks(com_df, sp_col, com, abund, dist_matrix)
 
   if (is.null(abund)) {
-    message("No relative abundance provided, computing Di without it")
-  } else if (!is.null(abund) & !is_relative(com_df, abund)) {
-    # Test if provided data.frame contains absolute abundances
-    warning("Provided object may not contain relative abundances nor ",
-            "presence-absence\n",
-            "Have a look at the make_relative() function if it is the case")
+    message("No abundance column provided, computing Di without it")
   }
 
 
@@ -170,14 +165,23 @@ distinctiveness_stack = function(com_df, sp_col, com, abund = NULL,
   # Split table by communities
   com_split = split(com_df, factor(com_df[[com]]))
 
-  com_split = lapply(com_split,
-                      function(one_com)
-                        distinctiveness_com(one_com, sp_col, abund, dist_matrix,
-                                            relative = relative))
-  com_distinctiveness = do.call(rbind.data.frame, c(com_split, make.row.names = FALSE, stringsAsFactors = FALSE))
+  com_split = lapply(
+    com_split,
+    function(one_com) {
+      distinctiveness_com(
+        one_com, sp_col, abund, dist_matrix, relative = relative
+      )
+    }
+  )
 
-  if(any(vapply(com_distinctiveness[["Di"]], function(x) is.nan(x),
-                logical(1)))) {
+  com_distinctiveness = do.call(
+    rbind.data.frame,
+    c(com_split, make.row.names = FALSE, stringsAsFactors = FALSE)
+  )
+
+  if(
+    any(vapply(com_distinctiveness[["Di"]], function(x) is.nan(x), logical(1)))
+  ) {
     warning("Some communities had a single species in them\n",
             "Computed value assigned to 'NaN'")
   }
@@ -220,7 +224,7 @@ distinctiveness_tidy = distinctiveness_stack
 #'    as `NaN`.
 #'
 #'    For speed and memory efficiency sparse matrices can be used as input of
-#'    the function using `as(pres_matrix, "sparseMatrix")` from the
+#'    the function using `as(pres_matrix, "dgCMatrix")` from the
 #'    `Matrix` package.
 #'    (see `vignette("sparse_matrices", package = "funrar")`)
 #'
@@ -267,12 +271,13 @@ distinctiveness_tidy = distinctiveness_stack
 #' reg_di = distinctiveness(reg_pool, dist_mat)
 #'
 #' @export
+#' @import Matrix
 distinctiveness = function(pres_matrix, dist_matrix, relative = FALSE) {
 
   full_matrix_checks(pres_matrix, dist_matrix)
 
   # Test relative argument
-  if (!is.logical(relative) | is.na(relative) | length(relative) != 1) {
+  if (!is.logical(relative) || is.na(relative) || length(relative) != 1) {
     stop("'relative' argument should be either TRUE or FALSE")
   }
 
@@ -281,29 +286,12 @@ distinctiveness = function(pres_matrix, dist_matrix, relative = FALSE) {
   pres_matrix = pres_matrix[, common, drop = FALSE]
   dist_matrix = dist_matrix[common, common]
 
-  if (!is_relative(pres_matrix)) {
-    warning("Provided object may not contain relative abundances nor ",
-            "presence-absence\n",
-            "Have a look at the make_relative() function if it is the case")
-  }
-
   # Matrix product of distance matrix and presence absence matrix
   index_matrix = pres_matrix %*% dist_matrix
 
-
-  # Compute sum of relative abundances
-  if (requireNamespace("Matrix", quietly = TRUE) &
-      is(pres_matrix, "sparseMatrix")) {
-    # Replace species not present in communities
-    index_matrix[Matrix::which(pres_matrix == 0)] = NA
-    total_sites = Matrix::rowSums(pres_matrix)
-
-  } else {
-
-    # Replace species not present in communities
-    index_matrix[which(pres_matrix == 0)] = NA
-    total_sites = rowSums(pres_matrix)
-  }
+  # Replace species not present in communities
+  index_matrix[which(pres_matrix == 0)] = NA
+  total_sites = rowSums(pres_matrix)
 
   # Subtract focal species value to site total
   # /!\ need to Transpose because applying function to row tranposes matrix

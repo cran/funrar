@@ -1,11 +1,10 @@
-#' Functional Distinctiveness within range
+#' Alternative Truncated Functional Distinctiveness
 #'
 #' Computes functional distinctiveness from a site-species matrix (containing
 #' presence-absence or relative abundances) of species with provided functional
-#' distance matrix **considering only species within a given range in the
-#' functional space**. The sites-species matrix should have **sites** in
-#' **rows** and **species** in **columns**, similar to
-#' \pkg{vegan} package defaults.
+#' distance matrix considering only species **within a given range** in the
+#' functional space. The sites-species matrix should have **sites** in **rows**
+#' and **species** in **columns**, similar to \pkg{vegan} package defaults.
 #'
 #' @inheritParams distinctiveness
 #'
@@ -24,7 +23,7 @@
 #'    as `NaN`.
 #'
 #'    For speed and memory efficiency sparse matrices can be used as input of
-#'    the function using `as(pres_matrix, "sparseMatrix")` from the
+#'    the function using `as(pres_matrix, "dgCMatrix")` from the
 #'    `Matrix` package.
 #'    (see `vignette("sparse_matrices", package = "funrar")`)
 #'
@@ -87,30 +86,23 @@
 #' # Distance matrix
 #' dist_mat = compute_dist_matrix(tra)
 #'
-#' di = distinctiveness(pres_matrix = mat, dist_matrix = dist_mat)
+#' di = distinctiveness_range(pres_matrix = mat, dist_matrix = dist_mat, 0.2)
 #' di[1:5, 1:5]
 #'
-#' # Compute distinctiveness for all species in the regional pool
-#' # i.e., with all the species in all the communities
-#' # Here considering each species present evenly in the regional pool
-#' reg_pool = matrix(1, ncol = ncol(mat))
-#' colnames(reg_pool) = colnames(mat)
-#' row.names(reg_pool) = c("Regional_pool")
-#'
-#' reg_di = distinctiveness(reg_pool, dist_mat)
-#'
 #' @export
-distinctiveness_range = function(pres_matrix, dist_matrix, given_range, relative = FALSE) {
+distinctiveness_range = function(
+  pres_matrix, dist_matrix, given_range, relative = FALSE
+) {
 
   full_matrix_checks(pres_matrix, dist_matrix)
 
   # Test provided range
-  if (!is.numeric(given_range) | is.na(given_range)) {
+  if (!is.numeric(given_range) || is.na(given_range)) {
     stop("'given_range' argument should be non-null and numeric")
   }
 
   # Test relative argument
-  if (!is.logical(relative) | is.na(relative) | length(relative) != 1) {
+  if (!is.logical(relative) || is.na(relative) || length(relative) != 1) {
     stop("'relative' argument should be either TRUE or FALSE")
   }
 
@@ -119,13 +111,7 @@ distinctiveness_range = function(pres_matrix, dist_matrix, given_range, relative
   pres_matrix = pres_matrix[, common, drop = FALSE]
   dist_matrix = dist_matrix[common, common]
 
-  if (!is_relative(pres_matrix)) {
-    warning("Provided object may not contain relative abundances nor ",
-            "presence-absence\n",
-            "Have a look at the make_relative() function if it is the case")
-  }
-
-  # Correspondance matrix
+  # Correspondence matrix
   corr_matrix = dist_matrix
   corr_matrix[dist_matrix > given_range] = 0
   corr_matrix[dist_matrix <= given_range] = 1
@@ -135,19 +121,11 @@ distinctiveness_range = function(pres_matrix, dist_matrix, given_range, relative
   index_matrix = pres_matrix %*% (dist_matrix * corr_matrix)
 
 
-  # Compute sum of relative abundances
-  if (requireNamespace("Matrix", quietly = TRUE) &
-      is(pres_matrix, "sparseMatrix")) {
-    # Replace species not present in communities
-    index_matrix[Matrix::which(pres_matrix == 0)] = NA
-    total_sites = Matrix::rowSums(pres_matrix)
+  ## Compute sum of relative abundances
+  # Replace species not present in communities
+  index_matrix[which(pres_matrix == 0)] = NA
+  total_sites = rowSums(pres_matrix)
 
-  } else {
-
-    # Replace species not present in communities
-    index_matrix[which(pres_matrix == 0)] = NA
-    total_sites = rowSums(pres_matrix)
-  }
 
   # Count the number of species considered for each species
   denom_matrix = pres_matrix %*% corr_matrix
@@ -168,7 +146,7 @@ distinctiveness_range = function(pres_matrix, dist_matrix, given_range, relative
 
   # Define right term in the equation of abundance weighted range Di
   right_term = 1
-  if (is_relative(pres_matrix) & !all(unique(as.vector(pres_matrix)) %in%
+  if (is_relative(pres_matrix) && !all(unique(as.vector(pres_matrix)) %in%
                                       c(1, 0))) {
     right_term = 1 - denom_matrix
   }
